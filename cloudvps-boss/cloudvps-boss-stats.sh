@@ -46,7 +46,7 @@ DUPLICITY_STATS="$(
     duplicity collection-status \
     --file-prefix="${HOSTNAME}." \
     --name="${HOSTNAME}." \
-    ${CUSTOM_DUPLICITY_OPTIONS} \
+    ${CUSTOM_DUPLICITY_OPTIONS[*]} \
     ${BACKUP_BACKEND} 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs)"
 for line in ${DUPLICITY_STATS}; do
         lecho "${line}"

@@ -69,7 +69,7 @@ fi
 
 CONTAINER_NAME="cloudvps-boss-backup"
 BACKUP_BACKEND="swift://${CONTAINER_NAME}"
-CUSTOM_DUPLICITY_OPTIONS=''
+CUSTOM_DUPLICITY_OPTIONS=()
 ENCRYPTION_OPTIONS="--no-encryption"
 
 source /etc/cloudvps-boss/auth.conf

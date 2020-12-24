@@ -47,7 +47,7 @@ echo
 lecho "Create full backup, manually forced."
 lecho "Starting Duplicity"
 
-lecho "duplicity full --verbosity 4 --log-file /var/log/duplicity.log --volsize ${VOLUME_SIZE} --tempdir=\"${TEMPDIR}\" --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" --exclude-device-files --allow-source-mismatch --num-retries 100 --exclude-filelist=/etc/cloudvps-boss/exclude.conf --full-if-older-than=\"${FULL_IF_OLDER_THAN}\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} / ${BACKUP_BACKEND}"
+lecho "duplicity full --verbosity 4 --log-file /var/log/duplicity.log --volsize ${VOLUME_SIZE} --tempdir=\"${TEMPDIR}\" --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" --exclude-device-files --allow-source-mismatch --num-retries 100 --exclude-filelist=/etc/cloudvps-boss/exclude.conf --full-if-older-than=\"${FULL_IF_OLDER_THAN}\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS[*]} / ${BACKUP_BACKEND}"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
@@ -63,7 +63,7 @@ DUPLICITY_OUTPUT=$(duplicity \
     --num-retries 100 \
     --exclude-filelist=/etc/cloudvps-boss/exclude.conf \
     ${ENCRYPTION_OPTIONS} \
-    ${CUSTOM_DUPLICITY_OPTIONS} \
+    ${CUSTOM_DUPLICITY_OPTIONS[*]} \
     full \
     / \
     ${BACKUP_BACKEND} 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs| sed -n -e '/--------------/,/--------------/ p')

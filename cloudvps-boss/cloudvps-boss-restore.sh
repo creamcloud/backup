@@ -100,7 +100,7 @@ if [[ "${RESTORE_TYPE}" == 1 ]]; then
 
     RELATIVE_PATH="${ORIGINAL_PATH:1}"
 
-    lecho "duplicity --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} --allow-source-mismatch --num-retries 100 --tempdir \"${TEMPDIR}\" -t ${RESTORE_DATETIME} --file-to-restore ${RELATIVE_PATH} ${BACKUP_BACKEND} \"/var/restore.${PID}\""
+    lecho "duplicity --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS[*]} --allow-source-mismatch --num-retries 100 --tempdir \"${TEMPDIR}\" -t ${RESTORE_DATETIME} --file-to-restore ${RELATIVE_PATH} ${BACKUP_BACKEND} \"/var/restore.${PID}\""
 
     OLD_IFS="${IFS}"
     IFS=$'\n'
@@ -108,7 +108,7 @@ if [[ "${RESTORE_TYPE}" == 1 ]]; then
         --file-prefix="${HOSTNAME}." \
         --name="${HOSTNAME}." \
         ${ENCRYPTION_OPTIONS} \
-        ${CUSTOM_DUPLICITY_OPTIONS} \
+        ${CUSTOM_DUPLICITY_OPTIONS[*]} \
         --allow-source-mismatch \
         --num-retries 100 \
         --tempdir "${TEMPDIR}" \
@@ -181,7 +181,7 @@ if [[ "${RESTORE_TYPE}" == 2 ]]; then
     echo; echo; echo; echo; echo; echo;
     lecho "Restoring MySQL database ${MYSQL_DB_NAME} from time ${RESTORE_DATETIME} for host ${HOSTNAME}. It will be restored to /var/restore.${PID} and then placed back in the MySQL server. Date: $(date)."
 
-    lecho "duplicity --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} --allow-source-mismatch --num-retries 100 --tempdir=\"${TEMPDIR}\" -t ${RESTORE_DATETIME} --file-to-restore var/backups/sql/${MYSQL_DB_NAME}.sql.gz ${BACKUP_BACKEND} \"/var/restore.${PID}.gz\""
+    lecho "duplicity --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS[*]} --allow-source-mismatch --num-retries 100 --tempdir=\"${TEMPDIR}\" -t ${RESTORE_DATETIME} --file-to-restore var/backups/sql/${MYSQL_DB_NAME}.sql.gz ${BACKUP_BACKEND} \"/var/restore.${PID}.gz\""
 
     OLD_IFS="${IFS}"
     IFS=$'\n'
@@ -191,7 +191,7 @@ if [[ "${RESTORE_TYPE}" == 2 ]]; then
         --allow-source-mismatch \
         --num-retries 100 \
         ${ENCRYPTION_OPTIONS} \
-        ${CUSTOM_DUPLICITY_OPTIONS} \
+        ${CUSTOM_DUPLICITY_OPTIONS[*]} \
         --tempdir "${TEMPDIR}" \
         -t ${RESTORE_DATETIME} \
         --file-to-restore var/backups/sql/${MYSQL_DB_NAME}.sql.gz \
@@ -258,7 +258,7 @@ if [[ "${RESTORE_TYPE}" == 3 ]]; then
     echo; echo; echo; echo; echo; echo;
     lecho "Restoring PostgreSQL database ${PSQL_DB_NAME} from time ${RESTORE_DATETIME} for host ${HOSTNAME}. It will be restored to /var/restore.${PID} and then placed back in the PostgreSQL server. Date: $(date)."
 
-    lecho "duplicity --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} --allow-source-mismatch --num-retries 5 --tempdir=\"${TEMPDIR}\" -t ${RESTORE_DATETIME} --file-to-restore var/backups/sql/${PSQL_DB_NAME}.psql.gz ${BACKUP_BACKEND} \"/var/restore.${PID}.gz\""
+    lecho "duplicity --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS[*]} --allow-source-mismatch --num-retries 5 --tempdir=\"${TEMPDIR}\" -t ${RESTORE_DATETIME} --file-to-restore var/backups/sql/${PSQL_DB_NAME}.psql.gz ${BACKUP_BACKEND} \"/var/restore.${PID}.gz\""
 
     OLD_IFS="${IFS}"
     IFS=$'\n'
@@ -266,7 +266,7 @@ if [[ "${RESTORE_TYPE}" == 3 ]]; then
         --file-prefix="${HOSTNAME}." \
         --name="${HOSTNAME}." \
         ${ENCRYPTION_OPTIONS} \
-        ${CUSTOM_DUPLICITY_OPTIONS} \
+        ${CUSTOM_DUPLICITY_OPTIONS[*]} \
         --allow-source-mismatch \
         --num-retries 5 \
         --tempdir "${TEMPDIR}" \

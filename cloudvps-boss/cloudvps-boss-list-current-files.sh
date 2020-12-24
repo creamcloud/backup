@@ -38,12 +38,12 @@ lecho "Start of CloudVPS Boss File Overview"
 lecho "Hostname: ${HOSTNAME}"
 lecho "$TIME_MESS"
 echo "-----------------------------------------"
-lecho "duplicity list-current-files --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} --allow-source-mismatch --num-retries 100 ${TIMEOPT} ${BACKUP_BACKEND}"
+lecho "duplicity list-current-files --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS[*]} --allow-source-mismatch --num-retries 100 ${TIMEOPT} ${BACKUP_BACKEND}"
 duplicity list-current-files \
     --file-prefix="${HOSTNAME}." \
     --name="${HOSTNAME}." \
     ${ENCRYPTION_OPTIONS} \
-    ${CUSTOM_DUPLICITY_OPTIONS} \
+    ${CUSTOM_DUPLICITY_OPTIONS[*]} \
     --allow-source-mismatch \
     --num-retries 100 \
     ${TIMEOPT} \

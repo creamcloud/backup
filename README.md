@@ -21,8 +21,8 @@ The code is open source so you can use it on non CloudVPS object stores in the u
   </ul>
 <li><a href="#con">Configuration</a></li>
 <ul>
-  <li><a href="#customconfig"></a>Custom Configuration</li>
-  <li><a href="#bwlimit"></a>Bandwidth limits</li>
+  <li><a href="#customconfig">Custom Configuration</a></li>
+  <li><a href="#bwlimit">Bandwidth limits</a></li>
 </ul>
 <li><a href="#bac">Backup</a></li>
 <ul>
@@ -307,7 +307,14 @@ The following options are supported:
 
     BACKUP_BACKEND=''
     CONTAINER_NAME=''
-    CUSTOM_DUPLICITY_OPTIONS=''
+    CUSTOM_DUPLICITY_OPTIONS=('')
+
+Multiple custom Duplicity options can be given by adding additional elements to the array. For example:
+
+    CUSTOM_DUPLICITY_OPTIONS=(
+      "--max-blocksize=8192"
+      "--archive-dir=/var/backups/duplicity"
+    )
 
 If you want to use a container other than the default 'cloudvps-boss-backup' you can change CONTAINER_NAME.
 
@@ -319,7 +326,7 @@ For FTP you need to install `ncftp`.
 
 To use an SSH/SFTP server with a custom SSH key:
 
-    CUSTOM_DUPLICITY_OPTIONS='--ssh-options=-oIdentityFile=/root/.ssh/backup'
+    CUSTOM_DUPLICITY_OPTIONS=('--ssh-options=-oIdentityFile=/root/.ssh/backup')
     BACKUP_BACKEND='ssh://backup@example.com:22/backups/'
 
 For SFTP/SSH you need to install `paramiko`.
@@ -330,7 +337,7 @@ Do note that we do not support custom configuration and / or custom backends.
 
 <a id="bwlimit"></a>
 
-### Bandwidth Limit
+#### Bandwidth Limit
 
 By default CloudVPS Boss will use all available bandwidth. If you have a 100 Mbit uplink it will use all the bandwidth it can get. This might be an issue on some systems. You can use the traffic shaping program `trickle` to limit the bandwidth of the backup.
 
@@ -361,7 +368,6 @@ The `-u 250` is the max upload speed in KB/s. The above command line will effect
 Change the cronjob file to be immutable. Otherwise the change will be overwritten next update:
 
     chattr +i /etc/cron.d/cloudvps-boss
-
 
 <a id="bac"></a>
 
@@ -427,7 +433,6 @@ If you want to run a backup manually, use the command `cloudvps-boss`. An exampl
     # CloudVPS Boss Completed Status Upload 1.6 ended on hostname at Sun Aug 24 09:08:58 CEST 2014.
 
     # CloudVPS Boss 1.6 ended on Sun Aug 24 09:08:58 CEST 2014.
-
 
 If the cleanup action also runs you will have extra output like this:
 
@@ -1387,7 +1392,7 @@ Where 250 is the size in megabytes.
 
 Add the following to `custom.conf`:
 
-    CUSTOM_DUPLICITY_OPTIONS='--max-blocksize=16777216'
+    CUSTOM_DUPLICITY_OPTIONS=('--max-blocksize=16777216')
 
 Do note that the above parameters also need to be set when doing a restore on another machine.
 

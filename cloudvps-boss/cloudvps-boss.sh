@@ -47,7 +47,7 @@ echo
 lecho "Create full backup if last full backup is older than: ${FULL_IF_OLDER_THAN} and keep at max ${FULL_TO_KEEP} full backups."
 lecho "Starting Duplicity"
 
-lecho "duplicity --verbosity 9 --log-file /var/log/duplicity.log --volsize ${VOLUME_SIZE} --tempdir=\"${TEMPDIR}\" --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" --exclude-device-files --allow-source-mismatch --num-retries 100 --exclude-filelist=/etc/cloudvps-boss/exclude.conf --full-if-older-than=\"${FULL_IF_OLDER_THAN}\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} / ${BACKUP_BACKEND}"
+lecho "duplicity --verbosity 4 --log-file /var/log/duplicity.log --volsize ${VOLUME_SIZE} --tempdir=\"${TEMPDIR}\" --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" --exclude-device-files --allow-source-mismatch --num-retries 100 --exclude-filelist=/etc/cloudvps-boss/exclude.conf --full-if-older-than=\"${FULL_IF_OLDER_THAN}\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS[*]} / ${BACKUP_BACKEND}"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
@@ -64,7 +64,7 @@ DUPLICITY_OUTPUT=$(duplicity \
     --exclude-filelist=/etc/cloudvps-boss/exclude.conf \
     --full-if-older-than="${FULL_IF_OLDER_THAN}" \
     ${ENCRYPTION_OPTIONS} \
-    ${CUSTOM_DUPLICITY_OPTIONS} \
+    ${CUSTOM_DUPLICITY_OPTIONS[*]} \
     / \
     ${BACKUP_BACKEND} 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs| sed -n -e '/--------------/,/--------------/ p')
 
