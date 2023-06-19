@@ -176,17 +176,17 @@ if [[ -f "/root/.my.cnf" ]]; then
     fi
 fi
 
-
-DATABASES="$(mysql -e 'SHOW DATABASES;' | grep -v -e 'Database' -e 'information_schema')"
+DATABASES="$(mysql -e 'SHOW DATABASES;' | grep -v -e 'Database' -e 'information_schema' -e 'mysql' -e 'performance_schema')"
 
 if [[ -z "${DATABASES}" ]]; then
     lerror "No databases found. Not backing up MySQL"
     exit 1
 fi
 
-lecho "Cleaning up old databasebackups from /var/backups/sql/"
-rm /var/backups/sql/*.sql.gz # verwijder de oude sql backups
-
+lecho "Cleaning up old database backups from /var/backups/sql/"
+if [[ -d /var/backups/sql ]]; then
+    rm /var/backups/sql/*.sql.gz
+fi
 
 for DB in ${DATABASES}; do
     lecho "Dumping database ${DB} to /var/backups/sql/${DB}.sql.gz"
