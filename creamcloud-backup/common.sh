@@ -190,7 +190,7 @@ get_file() {
                 wget --quiet --output-document "$1" "$2"
             fi
         else
-            curl --silent --output "$1" "$2"
+            curl --location --silent --output "$1" "$2"
         fi
     else
         echo "Not all required parameters received. Usage: get_file SAVE_TO URL"

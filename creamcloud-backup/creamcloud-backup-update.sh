@@ -24,11 +24,6 @@ TITLE="CloudVPS Boss Upgrade ${VERSION}"
 
 DL_SRV="https://github.com/creamcloud/backup/"
 
-if [[ -f "/etc/cloudvps-boss/duplicity_${DUPLICITY_VERSION}_installed" ]]; then
-    echo "Duplicity ${DUPLICITY_VERSION} already compiled and installed."
-    exit 0
-fi
-
 if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
     echo "Cannot find /etc/creamcloud-backup/common.sh"
     exit 1
@@ -62,7 +57,7 @@ if [[ -d "/root/.creamcloud-backup/creamcloud-backup" ]]; then
 fi
 
 lecho "Downloading CloudVPS Boss from ${DL_SRV}archive/refs/heads/master.zip"
-get_file "/root/.creamcloud-backup/creamcloud-backup.tar.gz" "${DL_SRV}archive/refs/heads/master.zip"
+get_file "/root/.creamcloud-backup/creamcloud-backup.tar.gz" "${DL_SRV}archive/refs/heads/master.tar.gz"
 if [[ $? -ne 0 ]]; then
     lecho "Download of cloudvps-boss failed. Check firewall and network connectivity."
     exit 1
@@ -75,5 +70,6 @@ if [[ $? -ne 0 ]]; then
 fi
 popd
 
+mv backup-master creamcloud-backup
 pushd /root/.creamcloud-backup/creamcloud-backup
 bash install.sh

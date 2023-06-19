@@ -58,11 +58,6 @@ if [[ ! -d "/etc/creamcloud-backup" ]]; then
 fi
 
 if [[ -f "/etc/creamcloud-backup/auth.conf" ]]; then
-    lecho "Boss-backup beta auth config found. Copying it."
-    cp "/etc/creamcloud-backup/auth.conf" "/etc/creamcloud-backup/auth.conf"
-fi
-
-if [[ -f "/etc/creamcloud-backup/auth.conf" ]]; then
     lecho "/etc/creamcloud-backup/auth.conf already exists. Not overwriting it"
     exit
 fi
