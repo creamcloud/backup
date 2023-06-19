@@ -70,6 +70,6 @@ if [[ $? -ne 0 ]]; then
 fi
 popd
 
-mv backup-master creamcloud-backup
+mv /root/.creamcloud-backup/backup-master /root/.creamcloud-backup/creamcloud-backup
 pushd /root/.creamcloud-backup/creamcloud-backup
 bash install.sh
