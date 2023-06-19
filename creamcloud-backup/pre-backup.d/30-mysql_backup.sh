@@ -166,7 +166,7 @@ if [[ -f "/root/.my.cnf" ]]; then
             touch /etc/creamcloud-backup/mysql_credentials_incorrect
             lecho "MySQL credentials incorrect. Rebuilding file and retrying."
             mv /root/.my.cnf /root/.my.cnf.$$.bak
-            bash /etc/creamcloud-backup/pre-backup.d/15-mysql_backup.sh
+            bash /etc/creamcloud-backup/pre-backup.d/30-mysql_backup.sh
             if [[ $? -ne 0 ]]; then
                 lecho "Rebuild and retry worked."
                 rm /etc/creamcloud-backup/mysql_credentials_incorrect

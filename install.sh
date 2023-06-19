@@ -263,7 +263,7 @@ for COPY_FILE in "creamcloud-backup.cron" "backup.conf" "creamcloud-backup-list-
     fi
 done
 
-for COPY_FILE in "10-upload-starting-status.sh" "11_lockfile_check.sh" "15-mysql_backup.sh"; do
+for COPY_FILE in "10-upload-starting-status.sh" "20_lockfile_check.sh" "30-mysql_backup.sh"; do
     cp "creamcloud-backup/pre-backup.d/${COPY_FILE}" "/etc/creamcloud-backup/pre-backup.d/${COPY_FILE}"
     if [[ "$?" -ne 0 ]]; then
         lerror "Cannot copy creamcloud-backup/${COPY_FILE} to /etc/creamcloud-backup/pre-backup.d/${COPY_FILE}."
@@ -348,7 +348,7 @@ for COMMAND in "creamcloud-backup.sh" "creamcloud-backup-restore.sh" "creamcloud
     ln -fs "/etc/creamcloud-backup/${COMMAND}" "/usr/local/bin/${COMMAND%.sh}"
 done
 
-for FILE in "pre-backup.d/15-mysql_backup.sh" "pre-backup.d/15-postgresql_backup.sh" "post-backup.d/10-upload-completed-status.sh" "pre-backup.d/10-upload-starting-status.sh" "pre-backup.d/11_lockfile_check.sh" "post-fail-backup.d/10-upload-fail-status.sh" "post-fail-backup.d/20-failure-notify.sh"; do
+for FILE in "pre-backup.d/30-mysql_backup.sh" "post-backup.d/10-upload-completed-status.sh" "pre-backup.d/10-upload-starting-status.sh" "pre-backup.d/20_lockfile_check.sh" "post-fail-backup.d/10-upload-fail-status.sh" "post-fail-backup.d/20-failure-notify.sh"; do
     # make sure all files are executable
     chmod +x "/etc/creamcloud-backup/${FILE}"
 done
