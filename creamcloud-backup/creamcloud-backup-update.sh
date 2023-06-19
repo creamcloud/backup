@@ -56,7 +56,7 @@ if [[ -d "/root/.creamcloud-backup/creamcloud-backup" ]]; then
     rm -rf /root/.creamcloud-backup/creamcloud-backup
 fi
 
-lecho "Downloading CloudVPS Boss from ${DL_SRV}archive/refs/heads/master.zip"
+lecho "Downloading CloudVPS Boss from ${DL_SRV}archive/refs/heads/master.tar.gz"
 get_file "/root/.creamcloud-backup/creamcloud-backup.tar.gz" "${DL_SRV}archive/refs/heads/master.tar.gz"
 if [[ $? -ne 0 ]]; then
     lecho "Download of cloudvps-boss failed. Check firewall and network connectivity."
@@ -68,8 +68,7 @@ if [[ $? -ne 0 ]]; then
     lecho "Extraction of creamcloud-backup in /root/.creamcloud-backup failed."
     exit 1
 fi
-popd
-
 mv /root/.creamcloud-backup/backup-master /root/.creamcloud-backup/creamcloud-backup
+popd
 pushd /root/.creamcloud-backup/creamcloud-backup
 bash install.sh
