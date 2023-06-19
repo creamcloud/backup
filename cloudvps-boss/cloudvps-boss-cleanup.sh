@@ -18,26 +18,28 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-VERSION="1.9.18"
+VERSION="2.0.0"
 TITLE="CloudVPS Boss Backup Cleanup ${VERSION}"
 
 ## does not remove backup data. Manpage entry for cleanup:
 ## Delete the extraneous duplicity files on the given backend. Non-duplicity files, or files in complete data sets will not be deleted. This should only be necessary after a duplicity session fails or is aborted prematurely. Note that --force will be needed to delete the files instead of just listing them.
 
-if [[ ! -f "/etc/cloudvps-boss/common.sh" ]]; then
-    lerror "Cannot find /etc/cloudvps-boss/common.sh"
+if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
+    lerror "Cannot find /etc/creamcloud-backup/common.sh"
     exit 1
 fi
-source /etc/cloudvps-boss/common.sh
+source /etc/creamcloud-backup/common.sh
 
 lecho "${TITLE} started on ${HOSTNAME} at $(date)."
 
-lecho "duplicity cleanup --extra-clean --force ${BACKUP_BACKEND}"
+lecho "duplicity cleanup --file-prefix="${HOSTNAME}." --name="${HOSTNAME}." --extra-clean --force ${BACKUP_BACKEND}"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
 DUPLICITY_OUTPUT=$(duplicity \
     cleanup \
+    --file-prefix="${HOSTNAME}." \
+    --name="${HOSTNAME}." \
     --extra-clean \
     --force \
     ${ENCRYPTION_OPTIONS} \

@@ -18,14 +18,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-VERSION="1.9.18"
+VERSION="2.0.0"
 TITLE="CloudVPS Boss Stats ${VERSION}"
 
-if [[ ! -f "/etc/cloudvps-boss/common.sh" ]]; then
-    lerror "Cannot find /etc/cloudvps-boss/common.sh"
+if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
+    lerror "Cannot find /etc/creamcloud-backup/common.sh"
     exit 1
 fi
-source /etc/cloudvps-boss/common.sh
+source /etc/creamcloud-backup/common.sh
 
 
 USED="$(swift stat --lh ${CONTAINER_NAME} 2>&1 | awk '/Bytes/ { print $2}' | grep -v -e Warning -e pkg_resources -e oslo)"

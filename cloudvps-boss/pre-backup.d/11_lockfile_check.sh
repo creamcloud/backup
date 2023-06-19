@@ -18,14 +18,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-VERSION="1.9.18"
+VERSION="2.0.0"
 TITLE="CloudVPS Boss Lockfile Check ${VERSION}"
 
-if [[ ! -f "/etc/cloudvps-boss/common.sh" ]]; then
-    lerror "Cannot find /etc/cloudvps-boss/common.sh"
+if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
+    lerror "Cannot find /etc/creamcloud-backup/common.sh"
     exit 1
 fi
-source /etc/cloudvps-boss/common.sh
+source /etc/creamcloud-backup/common.sh
 
 DUPLICITY_LOCKFILE="$(find /root/.cache/duplicity -iname '*.lock' 2>&1 | head -n 1)"
 
@@ -34,7 +34,7 @@ greater_than_24hour_mail() {
         command_exists "${COMMAND}"
     done
 
-    mail -s "[CLOUDVPS BOSS] ${HOSTNAME}/$(curl -s http://ip.raymii.org): Other backup job still running, more than 24 hours." "${recipient}" <<MAIL
+    mail -s "[CLOUDVPS BOSS] ${HOSTNAME}/$(curl -s http://ip.cloudvps.nl): Other backup job still running, more than 24 hours." "${recipient}" <<MAIL
 
 Dear user,
 
@@ -49,7 +49,7 @@ Should this process hang for 24 hours as well, you will receive this message aga
 
 Your files have not been backupped during this session.
 
-This is server $(curl -s http://ip.raymii.org). You are using CloudVPS Boss ${VERSION}
+This is server $(curl -s http://ip.cloudvps.nl). You are using CloudVPS Boss ${VERSION}
 to backup files to the CloudVPS Object Store.
 
 Kind regards,
@@ -58,10 +58,10 @@ MAIL
 }
 
 send_greater_than_24hour_mail() {
-    if [[ -f "/etc/cloudvps-boss/email.conf" ]]; then
+    if [[ -f "/etc/creamcloud-backup/email.conf" ]]; then
         while read recipient; do
              greater_than_24hour_mail
-        done < /etc/cloudvps-boss/email.conf
+        done < /etc/creamcloud-backup/email.conf
     else
         lerror "No email file found. Not mailing"
     fi
@@ -72,7 +72,7 @@ less_than_24hour_mail() {
         command_exists "${COMMAND}"
     done
 
-    mail -s "[CLOUDVPS BOSS] ${HOSTNAME}/$(curl -s http://ip.raymii.org): Other backupjob still running, less than 24 hours." "${recipient}" <<MAIL
+    mail -s "[CLOUDVPS BOSS] ${HOSTNAME}/$(curl -s http://ip.cloudvps.nl): Other backupjob still running, less than 24 hours." "${recipient}" <<MAIL
 
 Dear user,
 
@@ -89,7 +89,7 @@ Currently, there is no intervention needed from your side, CloudVPS Boss has alr
 
 Your files have not been backupped during this session.
 
-This is server $(curl -s http://ip.raymii.org). You are using CloudVPS Boss ${VERSION}
+This is server $(curl -s http://ip.cloudvps.nl). You are using CloudVPS Boss ${VERSION}
 to backup files to the CloudVPS Object Store.
 
 Kind regards,
@@ -98,10 +98,10 @@ MAIL
 }
 
 send_less_than_24hour_mail() {
-    if [[ -f "/etc/cloudvps-boss/email.conf" ]]; then
+    if [[ -f "/etc/creamcloud-backup/email.conf" ]]; then
         while read recipient; do
              less_than_24hour_mail
-        done < /etc/cloudvps-boss/email.conf
+        done < /etc/creamcloud-backup/email.conf
     else
         lerror "No email file found. Not mailing"
     fi
@@ -137,7 +137,7 @@ if [[ ! -z "${DUPLICITY_LOCKFILE}" ]]; then
                 fi
             else
                 echo "Duplicity is still running. Seems OK."
-                touch /etc/cloudvps-boss/status/24h
+                touch /etc/creamcloud-backup/status/24h
                 send_less_than_24hour_mail
             fi
         fi

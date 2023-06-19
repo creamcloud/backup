@@ -35,12 +35,12 @@ usage() {
 }
 
 lecho() {
-    logger -t "cloudvps-boss" -- "$1"
+    logger -t "creamcloud-backup" -- "$1"
     echo "# $1"
 }
 
 lerror() {
-    logger -t "cloudvps-boss" -- "ERROR - $1"
+    logger -t "creamcloud-backup" -- "ERROR - $1"
     echo "$1" 1>&2
 }
 
@@ -49,26 +49,21 @@ if [[ "${EUID}" -ne 0 ]]; then
    exit 1
 fi
 
-if [[ ! -d "/etc/cloudvps-boss" ]]; then
-    mkdir -p "/etc/cloudvps-boss"
+if [[ ! -d "/etc/creamcloud-backup" ]]; then
+    mkdir -p "/etc/creamcloud-backup"
     if [[ $? -ne 0 ]]; then
-        lerror "Cannot create /etc/cloudvps-boss"
+        lerror "Cannot create /etc/creamcloud-backup"
         exit 1
     fi
 fi
 
-if [[ -f "/etc/boss-backup/auth.conf" ]]; then
+if [[ -f "/etc/creamcloud-backup/auth.conf" ]]; then
     lecho "Boss-backup beta auth config found. Copying it."
-    cp "/etc/boss-backup/auth.conf" "/etc/cloudvps-boss/auth.conf"
+    cp "/etc/creamcloud-backup/auth.conf" "/etc/creamcloud-backup/auth.conf"
 fi
 
-if [[ -f "/etc/swiftbackup/auth.conf" ]]; then
-    lecho "Swiftbackup beta auth config found. Copying it."
-    cp "/etc/swiftbackup/auth.conf" "/etc/cloudvps-boss/auth.conf"
-fi
-
-if [[ -f "/etc/cloudvps-boss/auth.conf" ]]; then
-    lecho "/etc/cloudvps-boss/auth.conf already exists. Not overwriting it"
+if [[ -f "/etc/creamcloud-backup/auth.conf" ]]; then
+    lecho "/etc/creamcloud-backup/auth.conf already exists. Not overwriting it"
     exit
 fi
 
@@ -142,10 +137,10 @@ SWIFT_PASSWORD="${PASSWORD}"
 SWIFT_AUTHVERSION="2"
 SWIFT_AUTHURL="${OS_BASE_AUTH_URL}"
 
-if [[ ! -f "/etc/cloudvps-boss/auth.conf" ]]; then
-    touch "/etc/cloudvps-boss/auth.conf"
-    chmod 600 "/etc/cloudvps-boss/auth.conf"
-    cat << EOF > /etc/cloudvps-boss/auth.conf
+if [[ ! -f "/etc/creamcloud-backup/auth.conf" ]]; then
+    touch "/etc/creamcloud-backup/auth.conf"
+    chmod 600 "/etc/creamcloud-backup/auth.conf"
+    cat << EOF > /etc/creamcloud-backup/auth.conf
 export SWIFT_USERNAME="${SWIFT_USERNAME}"
 export SWIFT_PASSWORD="${SWIFT_PASSWORD}"
 export SWIFT_AUTHURL="${SWIFT_AUTHURL}"
@@ -156,16 +151,16 @@ export OS_USERNAME="${USERNAME}"
 export OS_PASSWORD="${PASSWORD}"
 export OS_TENANT_ID="${TENANT_ID}"
 EOF
-    lecho "Written auth config to /etc/cloudvps-boss/auth.conf."
+    lecho "Written auth config to /etc/creamcloud-backup/auth.conf."
 else
-    lecho "/etc/cloudvps-boss/auth.conf already exists. Not overwriting it"
+    lecho "/etc/creamcloud-backup/auth.conf already exists. Not overwriting it"
 fi
 
 lecho "Username: ${SWIFT_USERNAME}"
 lecho "Auth URL: ${SWIFT_AUTHURL}"
-lecho "Checking Swift Container for Backups: https://public.objectstore.eu/v1/${TENANT_ID}/cloudvps-boss-backup/"
+lecho "Checking Swift Container for Backups: https://public.objectstore.eu/v1/${TENANT_ID}/creamcloud-backup/"
 
-curl -s -o /dev/null -X PUT -T "/etc/hosts" --user "${USERNAME}:${PASSWORD}" "https://public.objectstore.eu/v1/${TENANT_ID}/cloudvps-boss-backup/"
+curl -s -o /dev/null -X PUT -T "/etc/hosts" --user "${USERNAME}:${PASSWORD}" "https://public.objectstore.eu/v1/${TENANT_ID}/creamcloud-backup/"
 if [[ $? == 60 ]]; then
     # CentOS 5...
     lecho "Curl error Peer certificate cannot be authenticated with known CA certificates."

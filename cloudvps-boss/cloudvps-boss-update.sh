@@ -18,22 +18,22 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-VERSION="1.9.18"
+VERSION="2.0.0"
 DUPLICITY_VERSION="0.7.17"
 TITLE="CloudVPS Boss Upgrade ${VERSION}"
 
-DL_SRV="https://download.cloudvps.com/cloudvps-boss/"
+DL_SRV="https://github.com/creamcloud/backup/"
 
 if [[ -f "/etc/cloudvps-boss/duplicity_${DUPLICITY_VERSION}_installed" ]]; then
     echo "Duplicity ${DUPLICITY_VERSION} already compiled and installed."
     exit 0
 fi
 
-if [[ ! -f "/etc/cloudvps-boss/common.sh" ]]; then
-    echo "Cannot find /etc/cloudvps-boss/common.sh"
+if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
+    echo "Cannot find /etc/creamcloud-backup/common.sh"
     exit 1
 fi
-source /etc/cloudvps-boss/common.sh
+source /etc/creamcloud-backup/common.sh
 
 lecho "${TITLE} started on ${HOSTNAME} at $(date)."
 
@@ -45,35 +45,35 @@ popd () {
     command popd "$@" > /dev/null
 }
 
-if [[ ! -d "/root/.cloudvps-boss" ]]; then
-    mkdir -p "/root/.cloudvps-boss"
+if [[ ! -d "/root/.creamcloud-backup" ]]; then
+    mkdir -p "/root/.creamcloud-backup"
 fi
 
-pushd /root/.cloudvps-boss
+pushd /root/.creamcloud-backup
 
-if [[ -f "/root/.cloudvps-boss/cloudvps-boss.tar.gz" ]]; then
-    lecho "Removing old update file from /root/.cloudvps-boss/cloudvps-boss.tar.gz"
-    rm -rf /root/.cloudvps-boss/cloudvps-boss.tar.gz
+if [[ -f "/root/.creamcloud-backup/creamcloud-backup.tar.gz" ]]; then
+    lecho "Removing old update file from /root/.creamcloud-backup/creamcloud-backup.tar.gz"
+    rm -rf /root/.creamcloud-backup/creamcloud-backup.tar.gz
 fi
 
-if [[ -d "/root/.cloudvps-boss/cloudvps-boss" ]]; then
-    lecho "Removing old update folder from /root/.cloudvps-boss/cloudvps-boss"
-    rm -rf /root/.cloudvps-boss/cloudvps-boss
+if [[ -d "/root/.creamcloud-backup/creamcloud-backup" ]]; then
+    lecho "Removing old update folder from /root/.creamcloud-backup/creamcloud-backup"
+    rm -rf /root/.creamcloud-backup/creamcloud-backup
 fi
 
-lecho "Downloading CloudVPS Boss from ${DL_SRV}cloudvps-boss_latest.tar.gz"
-get_file "/root/.cloudvps-boss/cloudvps-boss.tar.gz" "${DL_SRV}cloudvps-boss_latest.tar.gz"
+lecho "Downloading CloudVPS Boss from ${DL_SRV}archive/refs/heads/master.zip"
+get_file "/root/.creamcloud-backup/creamcloud-backup.tar.gz" "${DL_SRV}archive/refs/heads/master.zip"
 if [[ $? -ne 0 ]]; then
     lecho "Download of cloudvps-boss failed. Check firewall and network connectivity."
     exit 1
 fi
 
-tar -xf cloudvps-boss.tar.gz
+tar -xf creamcloud-backup.tar.gz
 if [[ $? -ne 0 ]]; then
-    lecho "Extraction of cloudvps-boss in /root/.cloudvps-boss failed."
+    lecho "Extraction of creamcloud-backup in /root/.creamcloud-backup failed."
     exit 1
 fi
 popd
 
-pushd /root/.cloudvps-boss/cloudvps-boss
+pushd /root/.creamcloud-backup/creamcloud-backup
 bash install.sh

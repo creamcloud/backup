@@ -18,14 +18,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-VERSION="1.9.18"
+VERSION="2.0.0"
 TITLE="CloudVPS Boss Recovery ${VERSION}"
 
-if [[ ! -f "/etc/cloudvps-boss/common.sh" ]]; then
-    lerror "Cannot find /etc/cloudvps-boss/common.sh"
+if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
+    lerror "Cannot find /etc/creamcloud-backup/common.sh"
     exit 1
 fi
-source /etc/cloudvps-boss/common.sh
+source /etc/creamcloud-backup/common.sh
 
 lecho "${TITLE} started on ${HOSTNAME} at $(date)."
 
@@ -134,8 +134,8 @@ if [[ "${RESTORE_TYPE}" == 1 ]]; then
         lecho "Moving /var/restore.${PID} to ${RESTORE_PATH}"
         if [[ -f "/var/restore.${PID}" ]]; then
             TYPEA="File"
-            logger -t "cloudvps-boss" -- "FILE RESTORE TO ORIGINAL PATH"
-            logger -t "cloudvps-boss" -- "rsync -azq \"/var/restore.${PID}\" \"${RESTORE_PATH}\""
+            logger -t "creamcloud-backup" -- "FILE RESTORE TO ORIGINAL PATH"
+            logger -t "creamcloud-backup" -- "rsync -azq \"/var/restore.${PID}\" \"${RESTORE_PATH}\""
             rsync -azq "/var/restore.${PID}" "${RESTORE_PATH}"
             if [[ $? -ne 0 ]]; then
                 echo "File Restore unsuccessful. Please check logging, path name and network connectivity."
@@ -144,8 +144,8 @@ if [[ "${RESTORE_TYPE}" == 1 ]]; then
         fi
         if [[ -d "/var/restore.${PID}" ]]; then
             TYPEA="Folder"
-            logger -t "cloudvps-boss" -- "DIRECTORY RESTORE TO ORIGINAL PATH"
-            logger -t "cloudvps-boss" -- "rsync -azq \"/var/restore.${PID}/\" \"${RESTORE_PATH}\""
+            logger -t "creamcloud-backup" -- "DIRECTORY RESTORE TO ORIGINAL PATH"
+            logger -t "creamcloud-backup" -- "rsync -azq \"/var/restore.${PID}/\" \"${RESTORE_PATH}\""
             rsync -azq "/var/restore.${PID}/" "${RESTORE_PATH}"
             if [[ $? -ne 0 ]]; then
                 echo "Folder Restore unsuccessful. Please check logging, path name and network connectivity."

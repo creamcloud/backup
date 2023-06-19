@@ -29,16 +29,16 @@ fi
 trap ctrl_c INT
 
 lecho() {
-    logger -t "cloudvps-boss" -- "$1"
+    logger -t "creamcloud-backup" -- "$1"
     echo "# $1"
 }
 
 log() {
-    logger -t "cloudvps-boss" -- "$1"
+    logger -t "creamcloud-backup" -- "$1"
 }
 
 lerror() {
-    logger -t "cloudvps-boss" -- "ERROR - $1"
+    logger -t "creamcloud-backup" -- "ERROR - $1"
     echo "$1" 1>&2
 }
 
@@ -58,35 +58,30 @@ if [[ "${EUID}" -ne 0 ]]; then
    exit 1
 fi
 
-if [[ ! -f "/etc/cloudvps-boss/auth.conf" ]]; then
-    lerror "Cannot find /etc/cloudvps-boss/auth.conf."
+if [[ ! -f "/etc/creamcloud-backup/auth.conf" ]]; then
+    lerror "Cannot find /etc/creamcloud-backup/auth.conf."
     exit 1
 fi
-if [[ ! -f "/etc/cloudvps-boss/backup.conf" ]]; then
-    lerror "Cannot find /etc/cloudvps-boss/backup.conf."
+if [[ ! -f "/etc/creamcloud-backup/backup.conf" ]]; then
+    lerror "Cannot find /etc/creamcloud-backup/backup.conf."
     exit 1
 fi
 
-CONTAINER_NAME="cloudvps-boss-backup"
+CONTAINER_NAME="creamcloud-backup"
 BACKUP_BACKEND="swift://${CONTAINER_NAME}"
 CUSTOM_DUPLICITY_OPTIONS=''
 ENCRYPTION_OPTIONS="--no-encryption"
 
-source /etc/cloudvps-boss/auth.conf
-source /etc/cloudvps-boss/backup.conf
+source /etc/creamcloud-backup/auth.conf
+source /etc/creamcloud-backup/backup.conf
 
 TMP="${TEMPDIR}"
 TEMP="${TEMPDIR}"
 TMPDIR="${TEMPDIR}"
 
-if [[ -f "/etc/cloudvps-boss/encryption.conf" ]]; then
-    source "/etc/cloudvps-boss/encryption.conf"
-    logger -t "cloudvps-boss" -- "Encryption Configuration Loaded"
-fi
-
-if [[ -f "/etc/cloudvps-boss/custom.conf" ]]; then
-    source "/etc/cloudvps-boss/custom.conf"
-    logger -t "cloudvps-boss" -- "Custom Configuration Loaded"
+if [[ -f "/etc/creamcloud-backup/custom.conf" ]]; then
+    source "/etc/creamcloud-backup/custom.conf"
+    logger -t "creamcloud-backup" -- "Custom Configuration Loaded"
 fi
 
 command_exists() {
@@ -203,8 +198,8 @@ get_file() {
     fi
 }
 
-if [[ ! -d "/etc/cloudvps-boss/status/${HOSTNAME}" ]]; then
-    mkdir -p "/etc/cloudvps-boss/status/${HOSTNAME}"
+if [[ ! -d "/etc/creamcloud-backup/status/${HOSTNAME}" ]]; then
+    mkdir -p "/etc/creamcloud-backup/status/${HOSTNAME}"
     if [[ $? -ne 0 ]]; then
         lerror "Cannot create status folder"
         exit 1
@@ -216,7 +211,7 @@ for COMMAND in "awk" "sed" "grep" "tar" "wc" "seq" "gzip" "which" "openssl" "nic
 done
 
 ACTUAL_HOSTNAME="$(get_hostname)"
-logger -t "cloudvps-boss" -- "Configured hostname is ${HOSTNAME}."
-logger -t "cloudvps-boss" -- "Actual hostname is ${ACTUAL_HOSTNAME}."
+logger -t "creamcloud-backup" -- "Configured hostname is ${HOSTNAME}."
+logger -t "creamcloud-backup" -- "Actual hostname is ${ACTUAL_HOSTNAME}."
 
-logger -t "cloudvps-boss" -- "${TITLE} started on ${HOSTNAME} at $(date)."
+logger -t "creamcloud-backup" -- "${TITLE} started on ${HOSTNAME} at $(date)."

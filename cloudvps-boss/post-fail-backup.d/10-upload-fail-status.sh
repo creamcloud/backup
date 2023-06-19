@@ -18,16 +18,16 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-VERSION="1.9.18"
+VERSION="2.0.0"
 TITLE="CloudVPS Boss Fail Status Upload ${VERSION}"
 
-if [[ ! -f "/etc/cloudvps-boss/common.sh" ]]; then
-    lerror "Cannot find /etc/cloudvps-boss/common.sh"
+if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
+    lerror "Cannot find /etc/creamcloud-backup/common.sh"
     exit 1
 fi
-source /etc/cloudvps-boss/common.sh
+source /etc/creamcloud-backup/common.sh
 
-touch "/etc/cloudvps-boss/status/${HOSTNAME}/failed"
+touch "/etc/creamcloud-backup/status/${HOSTNAME}/failed"
 if [[ $? -ne 0 ]]; then
     lerror "Cannot update status"
     exit 1
@@ -35,7 +35,7 @@ fi
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
-SWIFTTOUCH=$(swift upload ${CONTAINER_NAME} "/etc/cloudvps-boss/status/${HOSTNAME}/failed" --object-name "status/${HOSTNAME}/failed" 2>&1 | grep -v -e Warning -e pkg_resources -e oslo)
+SWIFTTOUCH=$(swift upload ${CONTAINER_NAME} "/etc/creamcloud-backup/status/${HOSTNAME}/failed" --object-name "status/${HOSTNAME}/failed" 2>&1 | grep -v -e Warning -e pkg_resources -e oslo)
 if [[ $? -ne 0 ]]; then
     lerror "Could not upload failed status"
     for line in ${SWIFTTOUCH}; do

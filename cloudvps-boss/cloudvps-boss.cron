@@ -21,6 +21,12 @@
 # Replace root with your email address to receive backup reports.
 MAILTO="root"
 
-# CloudVPS Boss Backup
-1 1 * * * root /usr/local/bin/cloudvps-boss
+# CloudVPS Boss Cleanup
+0 0 * * * root /usr/local/bin/creamcloud-backup-cleanup
 
+# CloudVPS Boss Backup
+RANDM RANDH * * * root /usr/local/bin/creamcloud-backup
+
+# CloudVPS Boss Update
+0 1 1 * * root /usr/local/bin/creamcloud-backup-update
+=======

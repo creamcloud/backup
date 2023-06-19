@@ -18,20 +18,20 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-VERSION="1.9.18"
+VERSION="2.0.0"
 TITLE="CloudVPS Boss Manual Full Backup ${VERSION}"
 
-if [[ ! -f "/etc/cloudvps-boss/common.sh" ]]; then
-    lerror "Cannot find /etc/cloudvps-boss/common.sh"
+if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
+    lerror "Cannot find /etc/creamcloud-backup/common.sh"
     exit 1
 fi
-source /etc/cloudvps-boss/common.sh
+source /etc/creamcloud-backup/common.sh
 
 lecho "${TITLE} started on ${HOSTNAME} at $(date)."
 
 echo
-lecho "Running pre-backup scripts from /etc/cloudvps-boss/pre-backup.d/"
-for SCRIPT in /etc/cloudvps-boss/pre-backup.d/*; do
+lecho "Running pre-backup scripts from /etc/creamcloud-backup/pre-backup.d/"
+for SCRIPT in /etc/creamcloud-backup/pre-backup.d/*; do
     if [[ ! -d "${SCRIPT}" ]]; then
         if [[ -x "${SCRIPT}" ]]; then
             log "${SCRIPT}"
@@ -47,7 +47,7 @@ echo
 lecho "Create full backup, manually forced."
 lecho "Starting Duplicity"
 
-lecho "duplicity full --verbosity 4 --log-file /var/log/duplicity.log --volsize ${VOLUME_SIZE} --tempdir=\"${TEMPDIR}\" --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" --exclude-device-files --allow-source-mismatch --num-retries 100 --exclude-filelist=/etc/cloudvps-boss/exclude.conf --full-if-older-than=\"${FULL_IF_OLDER_THAN}\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} / ${BACKUP_BACKEND}"
+lecho "duplicity full --verbosity 4 --log-file /var/log/duplicity.log --volsize ${VOLUME_SIZE} --tempdir=\"${TEMPDIR}\" --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" --exclude-device-files --allow-source-mismatch --num-retries 100 --exclude-filelist=/etc/creamcloud-backup/exclude.conf --full-if-older-than=\"${FULL_IF_OLDER_THAN}\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} / ${BACKUP_BACKEND}"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
@@ -61,7 +61,7 @@ DUPLICITY_OUTPUT=$(duplicity \
     --exclude-device-files \
     --allow-source-mismatch \
     --num-retries 100 \
-    --exclude-filelist=/etc/cloudvps-boss/exclude.conf \
+    --exclude-filelist=/etc/creamcloud-backup/exclude.conf \
     ${ENCRYPTION_OPTIONS} \
     ${CUSTOM_DUPLICITY_OPTIONS} \
     full \
@@ -73,8 +73,8 @@ if [[ $? -ne 0 ]]; then
             lerror ${line}
     done
     lerror "CloudVPS Boss Backup to Object Store FAILED!. Please check server ${HOSTNAME}."
-    lerror "Running post-fail-backup scripts from /etc/cloudvps-boss/post-fail-backup.d/"
-    for SCRIPT in /etc/cloudvps-boss/post-fail-backup.d/*; do
+    lerror "Running post-fail-backup scripts from /etc/creamcloud-backup/post-fail-backup.d/"
+    for SCRIPT in /etc/creamcloud-backup/post-fail-backup.d/*; do
         if [[ ! -d "${SCRIPT}" ]]; then
             if [[ -x "${SCRIPT}" ]]; then
                 "${SCRIPT}" || lerror "Post fail backup script ${SCRIPT} failed."
@@ -90,8 +90,8 @@ done
 IFS="${OLD_IFS}"
 
 echo
-lecho "Running post-backup scripts from /etc/cloudvps-boss/post-backup.d/"
-for SCRIPT in /etc/cloudvps-boss/post-backup.d/*; do
+lecho "Running post-backup scripts from /etc/creamcloud-backup/post-backup.d/"
+for SCRIPT in /etc/creamcloud-backup/post-backup.d/*; do
     if [[ ! -d "${SCRIPT}" ]]; then
         if [[ -x "${SCRIPT}" ]]; then
             "${SCRIPT}" || lerror "Post backup script ${SCRIPT} failed."

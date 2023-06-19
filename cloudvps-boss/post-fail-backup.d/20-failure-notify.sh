@@ -18,18 +18,18 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-VERSION="1.9.18"
+VERSION="2.0.0"
 TITLE="CloudVPS Boss Failure Notify ${VERSION}"
 
-if [[ ! -f "/etc/cloudvps-boss/common.sh" ]]; then
-    lerror "Cannot find /etc/cloudvps-boss/common.sh"
+if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
+    lerror "Cannot find /etc/creamcloud-backup/common.sh"
     exit 1
 fi
-source /etc/cloudvps-boss/common.sh
+source /etc/creamcloud-backup/common.sh
 
-if [[ -f "/etc/cloudvps-boss/status/24h" ]]; then
+if [[ -f "/etc/creamcloud-backup/status/24h" ]]; then
     lecho "24 hour backup file found. Not sending email, removing file."
-    rm "/etc/cloudvps-boss/status/24h"
+    rm "/etc/creamcloud-backup/status/24h"
     exit 0
 fi
 
@@ -44,12 +44,12 @@ getlogging() {
 
     else
         if [[ -f "/var/log/messages" ]]; then
-            lecho "10 most recent lines with cloudvps-boss ERROR in /var/log/messages:"
-            grep "cloudvps-boss: ERROR" /var/log/messages | tail -n 10
+            lecho "10 most recent lines with creamcloud-backup ERROR in /var/log/messages:"
+            grep "creamcloud-backup: ERROR" /var/log/messages | tail -n 10
         fi
         if [[ -f "/var/log/syslog" ]]; then
-            lecho "10 most recent lines with cloudvps-boss ERROR in /var/log/syslog:"
-            grep "cloudvps-boss: ERROR" /var/log/syslog | tail -n 10
+            lecho "10 most recent lines with creamcloud-backup ERROR in /var/log/syslog:"
+            grep "creamcloud-backup: ERROR" /var/log/syslog | tail -n 10
         fi
     fi
 
@@ -57,7 +57,7 @@ getlogging() {
 
 errormail() {
 
-    mail -s "[CLOUDVPS BOSS] ${HOSTNAME}/$(curl -s http://ip.raymii.org): Critical error occurred during the backup!" "${recipient}" <<MAIL
+    mail -s "[CLOUDVPS BOSS] ${HOSTNAME}/$(curl -s http://ip.cloudvps.nl): Critical error occurred during the backup!" "${recipient}" <<MAIL
 
 Dear user,
 
@@ -67,14 +67,14 @@ Object Store has not succeeded on date: $(date) (server date/time).
 Here is some information:
 
 ===== BEGIN CLOUDVPS BOSS STATS =====
-$(cloudvps-boss-stats)
+$(creamcloud-backup-stats)
 ===== END CLOUDVPS BOSS STATS =====
 
 ===== BEGIN CLOUDVPS BOSS ERROR LOG =====
 $(getlogging)
 ===== END CLOUDVPS BOSS ERROR LOG =====
 
-This is server $(curl -s http://ip.raymii.org). You are using CloudVPS Boss ${VERSION}
+This is server $(curl -s http://ip.cloudvps.nl). You are using CloudVPS Boss ${VERSION}
 to backup files to the CloudVPS Object Store.
 
 Your files have not been backupped at this time. Please investigate this issue.
@@ -86,10 +86,10 @@ CloudVPS Boss
 MAIL
 }
 
-if [[ -f "/etc/cloudvps-boss/email.conf" ]]; then
+if [[ -f "/etc/creamcloud-backup/email.conf" ]]; then
     while read recipient; do
          errormail
-    done < /etc/cloudvps-boss/email.conf
+    done < /etc/creamcloud-backup/email.conf
 else
     lerror "No email file found. Not mailing"
 fi

@@ -28,17 +28,17 @@ if [[ ${DEBUG} == "1" ]]; then
 fi
 
 lecho() {
-    logger -t "cloudvps-boss" -- "$1"
+    logger -t "creamcloud-backup" -- "$1"
     echo "# $1"
 }
 
 lerror() {
-    logger -t "cloudvps-boss" -- "ERROR - $1"
+    logger -t "creamcloud-backup" -- "ERROR - $1"
     echo "$1" 1>&2
 }
 
 log() {
-    logger -t "cloudvps-boss" -- "$1"
+    logger -t "creamcloud-backup" -- "$1"
 }
 
 if [[ "${EUID}" -ne 0 ]]; then
@@ -50,9 +50,9 @@ lecho "${TITLE} started on $(date)."
 
 usage() {
     echo "Usage:"
-    echo "To install cloudvps-boss with interactive username password question:"
+    echo "To install Cream Cloud Backup with interactive username password question:"
     echo "./$0"
-    echo; echo "To install cloudvps-boss non-interactive:"
+    echo; echo "To install Cream Cloud Backup non-interactive:"
     echo "./$0 username@domain.tld 'passw0rd' 'tenant id'"
 }
 
@@ -69,7 +69,7 @@ run_script() {
         log "Starting $1"
         bash "$1" "$2" "$3" "$4"
         if [[ $? == 0 ]]; then
-            logger -t "cloudvps-boss" -- "$1 completed."
+            logger -t "creamcloud-backup" -- "$1 completed."
         else
             lerror "$1 did not exit cleanly."
             exit 1
@@ -180,12 +180,12 @@ done
 if [[ -f "/etc/csf/csf.fignore" ]]; then
     # Add ourself to the csf file ignore list
     # lfd will not scan and mark us suspicious
-    if [[ ! "$(grep 'cloudvps-boss' /etc/csf/csf.fignore)" ]]; then
+    if [[ ! "$(grep 'creamcloud-backup' /etc/csf/csf.fignore)" ]]; then
         lecho "Adding exceptions for lfd."
         echo "/tmp/pip-build-root/*" >> /etc/csf/csf.fignore
-        echo "/tmp/cloudvps-boss/*" >> /etc/csf/csf.fignore
-        echo "/usr/local/cloudvps-boss/*" >> /etc/csf/csf.fignore
-        echo "/etc/cloudvps-boss/*" >> /etc/csf/csf.fignore
+        echo "/tmp/creamcloud-backup/*" >> /etc/csf/csf.fignore
+        echo "/usr/local/creamcloud-backup/*" >> /etc/csf/csf.fignore
+        echo "/etc/creamcloud-backup/*" >> /etc/csf/csf.fignore
         service lfd restart 2>&1 > /dev/null
     fi
     if [[ ! "$(grep '89.31.101.64' /etc/csf/csf.allow)" ]]; then
@@ -208,32 +208,32 @@ if [[ -f "/etc/csf/csf.fignore" ]]; then
     fi
 fi
 
-if [[ -d "/etc/cloudvps-boss" ]]; then
+if [[ -d "/etc/creamcloud-backup" ]]; then
     # check if we already exist, if so, back us up
-    lecho "Backing up /etc/cloudvps-boss to /var/backups/cloudvps-boss.$$"
-    if [[ ! -d "/var/backups/cloudvps-boss.$$" ]]; then
-        mkdir -p "/var/backups/cloudvps-boss.$$"
+    lecho "Backing up /etc/creamcloud-backup to /var/backups/creamcloud-backup.$$"
+    if [[ ! -d "/var/backups/creamcloud-backup.$$" ]]; then
+        mkdir -p "/var/backups/creamcloud-backup.$$"
         if [[ "$?" -ne 0 ]]; then
-            lerror "Cannot create folder /var/backups/cloudvps-boss.$$"
+            lerror "Cannot create folder /var/backups/creamcloud-backup.$$"
         fi
     fi
 
-    cp -r "/etc/cloudvps-boss" "/var/backups/cloudvps-boss.$$"
+    cp -r "/etc/creamcloud-backup" "/var/backups/creamcloud-backup.$$"
     if [[ "$?" -ne 0 ]]; then
-        lerror "Cannot backup /etc/cloudvps-boss to /var/backups/cloudvps-boss.$$."
+        lerror "Cannot backup /etc/creamcloud-backup to /var/backups/creamcloud-backup.$$."
         exit 1
     fi
 
-    if [[ -f "/etc/cron.d/cloudvps-boss" ]]; then
-        cp -r "/etc/cron.d/cloudvps-boss" "/var/backups/cloudvps-boss.$$/cloudvps-boss.cron.bak"
+    if [[ -f "/etc/cron.d/creamcloud-backup" ]]; then
+        cp -r "/etc/cron.d/creamcloud-backup" "/var/backups/creamcloud-backup.$$/creamcloud-backup.cron.bak"
         if [[ "$?" -ne 0 ]]; then
-            lerror "Cannot backup /etc/cron.d/cloudvps-boss to /var/backups/cloudvps-boss.$$/cloudvps-boss.cron.bak."
+            lerror "Cannot backup /etc/cron.d/creamcloud-backup to /var/backups/creamcloud-backup.$$/creamcloud-backup.cron.bak."
             exit 1
         fi
     fi
 fi
 
-for FOLDER in "/etc/cloudvps-boss/pre-backup.d" "/etc/cloudvps-boss/post-backup.d" "/etc/cloudvps-boss/post-fail-backup.d"; do
+for FOLDER in "/etc/creamcloud-backup/pre-backup.d" "/etc/creamcloud-backup/post-backup.d" "/etc/creamcloud-backup/post-fail-backup.d"; do
     # create a few required folders
     if [[ ! -d "${FOLDER}" ]]; then
         mkdir -p "${FOLDER}"
@@ -244,58 +244,58 @@ for FOLDER in "/etc/cloudvps-boss/pre-backup.d" "/etc/cloudvps-boss/post-backup.
     fi
 done
 
-log "Extracting to /etc/cloudvps-boss/"
+log "Extracting to /etc/creamcloud-backup/"
 # we copy all the things manually because
 # some users do a chattr +i on stuff they don't want
 # overwritten. A cp -r fails and leaves inconsistent state,
 # a manual copy only fails the chattr'd things.
 for COPY_FILE in "README.md" "LICENSE.md" "CHANGELOG.md"; do
-    cp "${COPY_FILE}" "/etc/cloudvps-boss/${COPY_FILE}"
+    cp "${COPY_FILE}" "/etc/creamcloud-backup/${COPY_FILE}"
     if [[ "$?" -ne 0 ]]; then
-        lerror "Cannot copy ${COPY_FILE} to /etc/cloudvps-boss/${COPY_FILE}."
+        lerror "Cannot copy ${COPY_FILE} to /etc/creamcloud-backup/${COPY_FILE}."
     fi
 done
 
-for COPY_FILE in "cloudvps-boss.cron" "backup.conf" "cloudvps-boss-encryption-setup.sh" "cloudvps-boss-list-current-files.sh" "cloudvps-boss-verify.sh" "cloudvps-boss-cleanup.sh" "cloudvps-boss-restore.sh" "cloudvps-boss.sh" "cloudvps-boss-stats.sh" "cloudvps-boss-manual-full.sh" "cloudvps-boss-update.sh" "common.sh" "exclude.conf" "uninstall.sh"; do
-    cp "cloudvps-boss/${COPY_FILE}" "/etc/cloudvps-boss/${COPY_FILE}"
+for COPY_FILE in "creamcloud-backup.cron" "backup.conf" "creamcloud-backup-list-current-files.sh" "creamcloud-backup-verify.sh" "creamcloud-backup-cleanup.sh" "creamcloud-backup-restore.sh" "creamcloud-backup.sh" "creamcloud-backup-stats.sh" "creamcloud-backup-manual-full.sh" "creamcloud-backup-update.sh" "common.sh" "exclude.conf" "uninstall.sh"; do
+    cp "creamcloud-backup/${COPY_FILE}" "/etc/creamcloud-backup/${COPY_FILE}"
     if [[ "$?" -ne 0 ]]; then
-        lerror "Cannot copy cloudvps-boss/${COPY_FILE} to /etc/cloudvps-boss/${COPY_FILE}."
+        lerror "Cannot copy creamcloud-backup/${COPY_FILE} to /etc/creamcloud-backup/${COPY_FILE}."
     fi
 done
 
-for COPY_FILE in "10-upload-starting-status.sh" "11_lockfile_check.sh" "15-mysql_backup.sh" "15-postgresql_backup.sh"; do
-    cp "cloudvps-boss/pre-backup.d/${COPY_FILE}" "/etc/cloudvps-boss/pre-backup.d/${COPY_FILE}"
+for COPY_FILE in "10-upload-starting-status.sh" "11_lockfile_check.sh" "15-mysql_backup.sh"; do
+    cp "creamcloud-backup/pre-backup.d/${COPY_FILE}" "/etc/creamcloud-backup/pre-backup.d/${COPY_FILE}"
     if [[ "$?" -ne 0 ]]; then
-        lerror "Cannot copy cloudvps-boss/${COPY_FILE} to /etc/cloudvps-boss/pre-backup.d/${COPY_FILE}."
+        lerror "Cannot copy creamcloud-backup/${COPY_FILE} to /etc/creamcloud-backup/pre-backup.d/${COPY_FILE}."
     fi
 done
 
 for COPY_FILE in "10-upload-completed-status.sh"; do
-    cp "cloudvps-boss/post-backup.d/${COPY_FILE}" "/etc/cloudvps-boss/post-backup.d/${COPY_FILE}"
+    cp "creamcloud-backup/post-backup.d/${COPY_FILE}" "/etc/creamcloud-backup/post-backup.d/${COPY_FILE}"
     if [[ "$?" -ne 0 ]]; then
-        lerror "Cannot copy cloudvps-boss/${COPY_FILE} to /etc/cloudvps-boss/post-backup.d/${COPY_FILE}."
+        lerror "Cannot copy creamcloud-backup/${COPY_FILE} to /etc/creamcloud-backup/post-backup.d/${COPY_FILE}."
     fi
 done
 
 for COPY_FILE in "10-upload-fail-status.sh" "20-failure-notify.sh"; do
-    cp "cloudvps-boss/post-fail-backup.d/${COPY_FILE}" "/etc/cloudvps-boss/post-fail-backup.d/${COPY_FILE}"
+    cp "creamcloud-backup/post-fail-backup.d/${COPY_FILE}" "/etc/creamcloud-backup/post-fail-backup.d/${COPY_FILE}"
     if [[ "$?" -ne 0 ]]; then
-        lerror "Cannot copy cloudvps-boss/${COPY_FILE} to /etc/cloudvps-boss/post-fail-backup.d/${COPY_FILE}."
+        lerror "Cannot copy creamcloud-backup/${COPY_FILE} to /etc/creamcloud-backup/post-fail-backup.d/${COPY_FILE}."
     fi
 done
 
 # See if we are upgrading and if so
 # place back the important config files
 for CONF_FILE in "auth.conf" "email.conf" "backup.conf" "custom.conf" "exclude.conf" "encryption.conf"; do
-    if [[ -f "/var/backups/cloudvps-boss.$$/cloudvps-boss/${CONF_FILE}" ]]; then
+    if [[ -f "/var/backups/creamcloud-backup.$$/creamcloud-backup/${CONF_FILE}" ]]; then
         lecho "Update detected. Placing back file ${CONF_FILE}."
-        cp -r "/var/backups/cloudvps-boss.$$/cloudvps-boss/${CONF_FILE}" "/etc/cloudvps-boss/${CONF_FILE}"
+        cp -r "/var/backups/creamcloud-backup.$$/creamcloud-backup/${CONF_FILE}" "/etc/creamcloud-backup/${CONF_FILE}"
     fi
 done
 
 # complicated loop to run the installer and the credentials script
 # with the correct parameters.
-for SCRIPT in "install_duplicity.sh" "credentials.sh"; do
+for SCRIPT in "credentials.sh"; do
     if [[ "${SCRIPT}" == "credentials.sh" ]]; then
         if [[ ! -z "$1" ]]; then
             if [[ ! -z "$2" ]]; then
@@ -318,14 +318,14 @@ done
 # hostname is used by Duplicity...
 HOSTNAME="$(get_hostname)"
 # get and set the hostname in the config. Fails if config is chattr +i.
-sed -i "s/replace_me/${HOSTNAME}/g" /etc/cloudvps-boss/backup.conf
+sed -i "s/replace_me/${HOSTNAME}/g" /etc/creamcloud-backup/backup.conf
 
 if [[ ! -d "/etc/cron.d" ]]; then
     mkdir -p "/etc/cron.d"
 fi
 
-if [[ ! -f "/etc/cron.d/cloudvps-boss" ]]; then
-    mv "/etc/cloudvps-boss/cloudvps-boss.cron" "/etc/cron.d/cloudvps-boss"
+if [[ ! -f "/etc/cron.d/creamcloud-backup" ]]; then
+    mv "/etc/creamcloud-backup/creamcloud-backup.cron" "/etc/cron.d/creamcloud-backup"
     if [[ "$?" -ne 0 ]]; then
         lerror "Cannot place cronjob in /etc/cron.d."
     fi
@@ -333,7 +333,7 @@ if [[ ! -f "/etc/cron.d/cloudvps-boss" ]]; then
     RANDH="$(awk 'BEGIN{srand();print int(rand()*(0-6))+6 }')"
     RANDM="$(awk 'BEGIN{srand();print int(rand()*(0-59))+59 }')"
     # and 0 to 59 for the minutes. Then place it in the cronjob.
-    sed -i -e "s/RANDH/${RANDH}/g" -e "s/RANDM/${RANDM}/g" /etc/cron.d/cloudvps-boss
+    sed -i -e "s/RANDH/${RANDH}/g" -e "s/RANDM/${RANDM}/g" /etc/cron.d/creamcloud-backup
     # and show the user
     lecho "Randomized cronjob time, will run on ${RANDH}:${RANDM}."
 fi
@@ -342,48 +342,21 @@ if [[ ! -d "/usr/local/bin" ]]; then
     mkdir -p "/usr/local/bin"
 fi
 
-for COMMAND in "cloudvps-boss.sh" "cloudvps-boss-restore.sh" "cloudvps-boss-stats.sh" "cloudvps-boss-update.sh" "cloudvps-boss-list-current-files.sh" "cloudvps-boss-manual-full.sh"; do
-    log "Creating symlink for /etc/cloudvps-boss/${COMMAND} in /usr/local/bin/${COMMAND%.sh}."
-    chmod +x "/etc/cloudvps-boss/${COMMAND}"
-    ln -fs "/etc/cloudvps-boss/${COMMAND}" "/usr/local/bin/${COMMAND%.sh}"
+for COMMAND in "creamcloud-backup.sh" "creamcloud-backup-restore.sh" "creamcloud-backup-stats.sh" "creamcloud-backup-update.sh" "creamcloud-backup-list-current-files.sh" "creamcloud-backup-manual-full.sh"; do
+    log "Creating symlink for /etc/creamcloud-backup/${COMMAND} in /usr/local/bin/${COMMAND%.sh}."
+    chmod +x "/etc/creamcloud-backup/${COMMAND}"
+    ln -fs "/etc/creamcloud-backup/${COMMAND}" "/usr/local/bin/${COMMAND%.sh}"
 done
 
 for FILE in "pre-backup.d/15-mysql_backup.sh" "pre-backup.d/15-postgresql_backup.sh" "post-backup.d/10-upload-completed-status.sh" "pre-backup.d/10-upload-starting-status.sh" "pre-backup.d/11_lockfile_check.sh" "post-fail-backup.d/10-upload-fail-status.sh" "post-fail-backup.d/20-failure-notify.sh"; do
     # make sure all files are executable
-    chmod +x "/etc/cloudvps-boss/${FILE}"
+    chmod +x "/etc/creamcloud-backup/${FILE}"
 done
-
-for FILE in "cloudvps-boss-progress.sh" "post-backup.d/15-clean-verbose-log.sh"; do
-    if [[ -f "${FILE}" ]]; then
-        # progress script is broken.
-        # log cleaning should be done by logrotate.
-        rm "/etc/cloudvps-boss/${FILE}"
-    fi
-done
-
-for FILE in "cloudvps-boss-progress"; do
-    if [[ -L "${FILE}" ]]; then
-        # also remove symlink
-        rm "/usr/local/bin/${FILE}"
-    fi
-done
-
-if [[ -f "/usr/local/share/man/man1/duplicity.1" ]]; then
-    # otherwise, /usr/bin/mandb: can't open /usr/local/share/man/man1/duplicity.1: Permission denied
-    chmod 755 /usr/local/share/man/man1/duplicity.1
-fi
-
-if [[ -f "/usr/local/share/man/man1/rdiffdir.1" ]]; then
-    chmod 755 /usr/local/share/man/man1/rdiffdir.1
-fi
 
 echo
 lecho "If you want to receive email notifications of issues, please install"
 lecho "a mailserver and add email addresses, one per line, to the following"
-lecho "file: /etc/cloudvps-boss/email.conf"
-echo
-lecho "If you want to set up encryption, please execute the following command:"
-lecho "bash /etc/cloudvps-boss/cloudvps-boss-encryption-setup.sh"
+lecho "file: /etc/creamcloud-backup/email.conf"
 echo
 lecho "CloudVPS Boss installation completed."
 echo

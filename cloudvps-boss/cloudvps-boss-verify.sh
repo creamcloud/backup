@@ -18,18 +18,18 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-VERSION="1.9.18"
+VERSION="2.0.0"
 TITLE="CloudVPS Boss Backup Verify ${VERSION}"
 
-if [[ ! -f "/etc/cloudvps-boss/common.sh" ]]; then
-    lerror "Cannot find /etc/cloudvps-boss/common.sh"
+if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
+    lerror "Cannot find /etc/creamcloud-backup/common.sh"
     exit 1
 fi
-source /etc/cloudvps-boss/common.sh
+source /etc/creamcloud-backup/common.sh
 
 lecho "${TITLE} started on ${HOSTNAME} at $(date)."
 
-lecho "duplicity verify --volsize ${VOLUME_SIZE} --tempdir=\"${TEMPDIR}\" --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" --exclude-device-files --allow-source-mismatch --num-retries 100 --exclude-filelist=/etc/cloudvps-boss/exclude.conf ${ENCRYPTION_OPTIONS} ${BACKUP_BACKEND} /"
+lecho "duplicity verify --volsize ${VOLUME_SIZE} --tempdir=\"${TEMPDIR}\" --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" --exclude-device-files --allow-source-mismatch --num-retries 100 --exclude-filelist=/etc/creamcloud-backup/exclude.conf ${ENCRYPTION_OPTIONS} ${BACKUP_BACKEND} /"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
@@ -42,7 +42,7 @@ DUPLICITY_OUTPUT=$(duplicity \
     --exclude-device-files \
     --allow-source-mismatch \
     --num-retries 100 \
-    --exclude-filelist=/etc/cloudvps-boss/exclude.conf \
+    --exclude-filelist=/etc/creamcloud-backup/exclude.conf \
     ${ENCRYPTION_OPTIONS} \
     ${BACKUP_BACKEND} \
     / 2>&1 | grep -v  -e Warning -e pkg_resources -e oslo)
