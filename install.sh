@@ -145,8 +145,8 @@ install_packages_debian() {
 
 install_packages_centos() {
     lecho "Installing packages required for installation."
-    for PACKAGE in awk sed grep tar gzip which openssl curl wget screen vim haveged yum-cron; do
-        yum -q -y --disablerepo="*" --disableexcludes=main --enablerepo="base" --enablerepo="updates" install "${PACKAGE}" >/dev/null 2>&1
+    for PACKAGE in awk sed grep tar gzip which openssl curl wget screen vim haveged yum-cron restic; do
+        yum -q -y --disablerepo="*" --disableexcludes=main --enablerepo="base" --enablerepo="updates" --enablerepo="copr:copr.fedorainfracloud.org:copart:restic" install "${PACKAGE}" >/dev/null 2>&1
     done
 }
 
@@ -173,7 +173,7 @@ case "${DISTRO_NAME}" in
     ;;
 esac
 
-for COMMAND in "awk" "sed" "grep" "tar" "gzip" "which" "openssl" "curl"; do
+for COMMAND in "awk" "sed" "grep" "tar" "gzip" "which" "openssl" "curl" "restic"; do
     command_exists "${COMMAND}"
 done
 
