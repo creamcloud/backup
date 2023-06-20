@@ -145,6 +145,9 @@ install_packages_debian() {
 
 install_packages_centos() {
     lecho "Installing packages required for installation."
+
+    yum-config-manager --add-repo https://copr.fedorainfracloud.org/coprs/copart/restic/repo/epel-7/copart-restic-epel-7.repo
+
     for PACKAGE in awk sed grep tar gzip which openssl curl wget screen vim haveged yum-cron restic; do
         yum -q -y --disablerepo="*" --disableexcludes=main --enablerepo="base" --enablerepo="updates" --enablerepo="copr:copr.fedorainfracloud.org:copart:restic" install "${PACKAGE}" >/dev/null 2>&1
     done
