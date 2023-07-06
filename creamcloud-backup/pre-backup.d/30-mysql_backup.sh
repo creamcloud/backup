@@ -176,7 +176,7 @@ if [[ -f "/root/.my.cnf" ]]; then
     fi
 fi
 
-DATABASES="$(mysql -e 'SHOW DATABASES;' | grep -v -e 'Database' -e 'information_schema' -e 'mysql' -e 'performance_schema')"
+DATABASES="$(mysql -e 'SHOW DATABASES;' | grep -v -e 'Database' -e 'information_schema' -e 'mysql' -e 'performance_schema' -e 'sys')"
 
 if [[ -z "${DATABASES}" ]]; then
     lerror "No databases found. Not backing up MySQL"
