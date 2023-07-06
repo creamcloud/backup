@@ -35,7 +35,7 @@ if [[ "${choice}" = "y" ]]; then
     for FILE in "/etc/cron.d/creamcloud-backup"; do
         remove_file "${FILE}"
     done
-    for SYMLINK in "/usr/local/bin/creamcloud-backup" "/usr/local/bin/creamcloud-backup-restore" "/usr/local/bin/creamcloud-backup-stats" "/usr/local/bin/creamcloud-backup-list-current-files" "/usr/local/bin/creamcloud-backup-update"; do
+    for SYMLINK in "/usr/local/bin/creamcloud-backup" "/usr/local/bin/creamcloud-backup-restore" "/usr/local/bin/creamcloud-backup-stats" "/usr/local/bin/creamcloud-backup-list" "/usr/local/bin/creamcloud-backup-update"; do
         remove_symlink "${SYMLINK}"
     done
     for PIP_INSTALLED in "python-swiftclient" "python-keystoneclient" "argparse" "babel" "debtcollector" "futures" "iso8601" "netaddr" "oslo.config" "oslo.i18n" "oslo.serialization" "oslo.utils" "pbr" "prettytable" "requests" "six" "stevedore"; do

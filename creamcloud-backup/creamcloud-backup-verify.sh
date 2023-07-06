@@ -29,32 +29,23 @@ source /etc/creamcloud-backup/common.sh
 
 lecho "${TITLE} started on ${HOSTNAME} at $(date)."
 
-lecho "duplicity verify --volsize ${VOLUME_SIZE} --tempdir=\"${TEMPDIR}\" --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" --exclude-device-files --allow-source-mismatch --num-retries 100 --exclude-filelist=/etc/creamcloud-backup/exclude.conf ${ENCRYPTION_OPTIONS} ${BACKUP_BACKEND} /"
+lecho "restic check --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --verbose=1"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
-DUPLICITY_OUTPUT=$(duplicity \
-    verify \
-    --volsize=${VOLUME_SIZE} \
-    --tempdir="${TEMPDIR}" \
-    --file-prefix="${HOSTNAME}." \
-    --name="${HOSTNAME}." \
-    --exclude-device-files \
-    --allow-source-mismatch \
-    --num-retries 100 \
-    --exclude-filelist=/etc/creamcloud-backup/exclude.conf \
-    ${ENCRYPTION_OPTIONS} \
-    ${BACKUP_BACKEND} \
-    / 2>&1 | grep -v  -e Warning -e pkg_resources -e oslo)
+RESTIC_OUTPUT=$(restic check \
+    --repo ${BACKUP_BACKEND} \
+    --password-file=/etc/creamcloud-backup/restic-password.conf \
+    --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs)
 
 if [[ $? -ne 0 ]]; then
-    for line in ${DUPLICITY_OUTPUT}; do
+    for line in ${RESTIC_OUTPUT}; do
             lerror ${line}
     done
     lerror "CloudVPS Boss Verify FAILED!. Please check server ${HOSTNAME}."
 fi
 
-for line in ${DUPLICITY_OUTPUT}; do
+for line in ${RESTIC_OUTPUT}; do
         lecho "${line}"
 done
 IFS="${OLD_IFS}"

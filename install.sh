@@ -266,7 +266,7 @@ for COPY_FILE in "creamcloud-backup.cron" "backup.conf" "creamcloud-backup-list-
     fi
 done
 
-for COPY_FILE in "10-upload-starting-status.sh" "20_lockfile_check.sh" "30-mysql_backup.sh"; do
+for COPY_FILE in "10-upload-starting-status.sh" "20-lockfile_check.sh" "30-mysql_backup.sh"; do
     cp "creamcloud-backup/pre-backup.d/${COPY_FILE}" "/etc/creamcloud-backup/pre-backup.d/${COPY_FILE}"
     if [[ "$?" -ne 0 ]]; then
         lerror "Cannot copy creamcloud-backup/${COPY_FILE} to /etc/creamcloud-backup/pre-backup.d/${COPY_FILE}."
@@ -345,13 +345,13 @@ if [[ ! -d "/usr/local/bin" ]]; then
     mkdir -p "/usr/local/bin"
 fi
 
-for COMMAND in "creamcloud-backup.sh" "creamcloud-backup-restore.sh" "creamcloud-backup-stats.sh" "creamcloud-backup-update.sh" "creamcloud-backup-list-current-files.sh" "creamcloud-backup-manual-full.sh"; do
+for COMMAND in "creamcloud-backup.sh" "creamcloud-backup-cleanup.sh" "creamcloud-backup-list.sh" "creamcloud-backup-restore.sh" "creamcloud-backup-stats.sh" "creamcloud-backup-update.sh" "creamcloud-backup-verify.sh"; do
     log "Creating symlink for /etc/creamcloud-backup/${COMMAND} in /usr/local/bin/${COMMAND%.sh}."
     chmod +x "/etc/creamcloud-backup/${COMMAND}"
     ln -fs "/etc/creamcloud-backup/${COMMAND}" "/usr/local/bin/${COMMAND%.sh}"
 done
 
-for FILE in "pre-backup.d/30-mysql_backup.sh" "post-backup.d/10-upload-completed-status.sh" "pre-backup.d/10-upload-starting-status.sh" "pre-backup.d/20_lockfile_check.sh" "post-fail-backup.d/10-upload-fail-status.sh" "post-fail-backup.d/20-failure-notify.sh"; do
+for FILE in "pre-backup.d/30-mysql_backup.sh" "post-backup.d/10-upload-completed-status.sh" "pre-backup.d/10-upload-starting-status.sh" "pre-backup.d/20-lockfile_check.sh" "post-fail-backup.d/10-upload-fail-status.sh" "post-fail-backup.d/20-failure-notify.sh"; do
     # make sure all files are executable
     chmod +x "/etc/creamcloud-backup/${FILE}"
 done

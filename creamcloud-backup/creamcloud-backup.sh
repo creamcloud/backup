@@ -64,7 +64,7 @@ IFS="${OLD_IFS}"
 
 echo
 lecho "CloudVPS Boss Cleanup ${VERSION} started on $(date). Removing all and keep ${KEEP_DAILY} daily backups and ${KEEP_WEEKLY} weekly backups."
-lecho "restic forget --repo ${BACKUP_BACKEND} --exclude-file=/etc/creamcloud-backup/exclude.conf --password-file=/etc/creamcloud-backup/restic-password.conf --keep-daily ${KEEP_DAILY} --keep-weekly ${KEEP_WEEKLY} --verbose=1"
+lecho "restic forget --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --keep-daily=${KEEP_DAILY} --keep-weekly=${KEEP_WEEKLY} --verbose=1"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
