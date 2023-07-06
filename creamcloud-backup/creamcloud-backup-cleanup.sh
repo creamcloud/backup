@@ -36,23 +36,19 @@ lecho "duplicity cleanup --file-prefix="${HOSTNAME}." --name="${HOSTNAME}." --ex
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
-DUPLICITY_OUTPUT=$(duplicity \
-    cleanup \
-    --file-prefix="${HOSTNAME}." \
-    --name="${HOSTNAME}." \
-    --extra-clean \
-    --force \
-    ${ENCRYPTION_OPTIONS} \
-    ${BACKUP_BACKEND} 2>&1 | grep -v  -e Warning -e pkg_resources -e oslo)
+RESTIC_OUTPUT=$(restic prune \
+    --repo ${BACKUP_BACKEND} \
+    --password-file=/etc/creamcloud-backup/restic-password.conf \
+    --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs)
 
 if [[ $? -ne 0 ]]; then
-    for line in ${DUPLICITY_OUTPUT}; do
+    for line in ${RESTIC_OUTPUT}; do
             lerror ${line}
     done
     lerror "CloudVPS Boss Cleanup FAILED!. Please check server ${HOSTNAME}."
 fi
 
-for line in ${DUPLICITY_OUTPUT}; do
+for line in ${RESTIC_OUTPUT}; do
         lecho "${line}"
 done
 IFS="${OLD_IFS}"

@@ -70,10 +70,9 @@ OLD_IFS="${IFS}"
 IFS=$'\n'
 DUPLICITY_OUTPUT=$(restic forget \
     --repo ${BACKUP_BACKEND} \
-    --exclude-file=/etc/creamcloud-backup/exclude.conf \
     --password-file=/etc/creamcloud-backup/restic-password.conf \
-    --keep-daily ${KEEP_DAILY} \
-    --keep-weekly ${KEEP_WEEKLY} \
+    --keep-daily=${KEEP_DAILY} \
+    --keep-weekly=${KEEP_WEEKLY} \
     --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e attr -e kwargs)
 
 if [[ $? -ne 0 ]]; then
