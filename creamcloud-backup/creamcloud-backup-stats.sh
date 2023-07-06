@@ -38,13 +38,13 @@ lecho "Storage used: ${USED}"
 lecho "Full backups to keep: ${FULL_TO_KEEP}"
 lecho "Create full backup if last full backup is older than: ${FULL_IF_OLDER_THAN}"
 echo "-----------------------------------------"
-lecho "Duplicity collection status:"
+lecho "Restic snapshots:"
 OLD_IFS="${IFS}"
 IFS=$'\n'
-RESTIC_OUTPUT=$(restic snapshots / \
+RESTIC_OUTPUT=$(restic snapshots \
     --repo ${BACKUP_BACKEND} \
     --password-file=/etc/creamcloud-backup/restic-password.conf \
-    --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs)"
+    --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs)
 for line in ${RESTIC_OUTPUT}; do
         lecho "${line}"
 done

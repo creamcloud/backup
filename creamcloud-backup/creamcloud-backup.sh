@@ -64,11 +64,11 @@ IFS="${OLD_IFS}"
 
 echo
 lecho "CloudVPS Boss Cleanup ${VERSION} started on $(date). Removing all and keep ${KEEP_DAILY} daily backups and ${KEEP_WEEKLY} weekly backups."
-lecho "duplicity --verbosity 9 --log-file /var/log/duplicity.log --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" remove-all-but-n-full \"${FULL_TO_KEEP}\" ${ENCRYPTION_OPTIONS} --force  ${BACKUP_BACKEND}"
+lecho "restic forget --repo ${BACKUP_BACKEND} --exclude-file=/etc/creamcloud-backup/exclude.conf --password-file=/etc/creamcloud-backup/restic-password.conf --keep-daily ${KEEP_DAILY} --keep-weekly ${KEEP_WEEKLY} --verbose=1"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
-DUPLICITY_OUTPUT=$(restic forget / \
+DUPLICITY_OUTPUT=$(restic forget \
     --repo ${BACKUP_BACKEND} \
     --exclude-file=/etc/creamcloud-backup/exclude.conf \
     --password-file=/etc/creamcloud-backup/restic-password.conf \
