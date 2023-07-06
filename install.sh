@@ -259,7 +259,7 @@ for COPY_FILE in "README.md" "LICENSE.md" "CHANGELOG.md"; do
     fi
 done
 
-for COPY_FILE in "creamcloud-backup.cron" "backup.conf" "creamcloud-backup-list-current-files.sh" "creamcloud-backup-verify.sh" "creamcloud-backup-cleanup.sh" "creamcloud-backup-restore.sh" "creamcloud-backup.sh" "creamcloud-backup-stats.sh" "creamcloud-backup-manual-full.sh" "creamcloud-backup-update.sh" "common.sh" "exclude.conf" "uninstall.sh"; do
+for COPY_FILE in "creamcloud-backup.cron" "backup.conf" "creamcloud-backup-list.sh" "creamcloud-backup-verify.sh" "creamcloud-backup-cleanup.sh" "creamcloud-backup-restore.sh" "creamcloud-backup.sh" "creamcloud-backup-stats.sh" "creamcloud-backup-update.sh" "common.sh" "exclude.conf" "uninstall.sh"; do
     cp "creamcloud-backup/${COPY_FILE}" "/etc/creamcloud-backup/${COPY_FILE}"
     if [[ "$?" -ne 0 ]]; then
         lerror "Cannot copy creamcloud-backup/${COPY_FILE} to /etc/creamcloud-backup/${COPY_FILE}."
