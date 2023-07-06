@@ -27,7 +27,6 @@ if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
 fi
 source /etc/creamcloud-backup/common.sh
 
-
 USED="$(swift stat --lh ${CONTAINER_NAME} 2>&1 | awk '/Bytes/ { print $2}' | grep -v -e Warning -e pkg_resources -e oslo)"
 
 echo "========================================="
@@ -42,13 +41,11 @@ echo "-----------------------------------------"
 lecho "Duplicity collection status:"
 OLD_IFS="${IFS}"
 IFS=$'\n'
-DUPLICITY_STATS="$(
-    duplicity collection-status \
-    --file-prefix="${HOSTNAME}." \
-    --name="${HOSTNAME}." \
-    ${CUSTOM_DUPLICITY_OPTIONS} \
-    ${BACKUP_BACKEND} 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs)"
-for line in ${DUPLICITY_STATS}; do
+RESTIC_OUTPUT=$(restic snapshots / \
+    --repo ${BACKUP_BACKEND} \
+    --password-file=/etc/creamcloud-backup/restic-password.conf \
+    --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs)"
+for line in ${RESTIC_OUTPUT}; do
         lecho "${line}"
 done
 IFS="${OLD_IFS}"

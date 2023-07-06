@@ -45,9 +45,6 @@ lerror() {
 PATH=/usr/local/bin:$PATH
 PID="$$"
 
-## Don't change it to > 80% of minimum available RAM.
-VOLUME_SIZE="25"
-
 # Do not edit. Dirty Workaround for an openstack pbr bug. If not set, everything swift will fail miserably with errors like; Exception: Versioning for this project requires either an sdist tarball, or access to an upstream git repository. Are you sure that git is installed?
 # Will be fixed when new pbr version supports the wheel install used by pip.
 export PBR_VERSION="0.10.0"
@@ -66,9 +63,13 @@ if [[ ! -f "/etc/creamcloud-backup/backup.conf" ]]; then
     lerror "Cannot find /etc/creamcloud-backup/backup.conf."
     exit 1
 fi
+if [[ ! -f "/etc/creamcloud-backup/restic-password.conf" ]]; then
+    lerror "Cannot find /etc/creamcloud-backup/restic-password.conf."
+    exit 1
+fi
 
 CONTAINER_NAME="creamcloud-backup"
-BACKUP_BACKEND="swift://${CONTAINER_NAME}"
+BACKUP_BACKEND="swift:${CONTAINER_NAME}:/"
 CUSTOM_DUPLICITY_OPTIONS=''
 ENCRYPTION_OPTIONS="--no-encryption"
 
@@ -130,7 +131,7 @@ remove_symlink() {
 }
 
 get_hostname() {
-    HOSTNAME="$(curl -m 3 -s http://169.254.169.254/openstack/latest/meta_data.json | grep -o '\"uuid\": \"[^\"]*\"' | awk -F\" '{print $4}')"
+    HOSTNAME="$(curl -m 3 -s http://169.254.169.254/openstack/latest/meta_data.json | grep -o '\"hostname\": \"[^\"]*\"' | awk -F\" '{print $4}')"
     SRV_IP_ADDR="$(curl -q -A CloudVPS-Boss -m 3 -o /dev/null -s https://raymii.org/ >/dev/null 2>/dev/null)"
     if [[ -z "${HOSTNAME}" ]]; then
         if [[ -f "/var/firstboot/settings" ]]; then
@@ -204,6 +205,27 @@ if [[ ! -d "/etc/creamcloud-backup/status/${HOSTNAME}" ]]; then
         lerror "Cannot create status folder"
         exit 1
     fi
+
+    OLD_IFS="${IFS}"
+    IFS=$'\n'
+    RESTIC_OUTPUT=$(restic init / \
+        --repo ${BACKUP_BACKEND} \
+        --password-file=/etc/creamcloud-backup/restic-password.conf \
+        --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e attr -e kwargs)
+
+    if [[ $? -ne 0 ]]; then
+        for line in ${RESTIC_OUTPUT}; do
+                lerror ${line}
+        done
+        lerror "Restic repository initialisation FAILED!. Please check server ${HOSTNAME}."
+        exit 1
+    fi
+
+    for line in ${RESTIC_OUTPUT}; do
+            lecho "${line}"
+    done
+    IFS="${OLD_IFS}"
+
 fi
 
 for COMMAND in "awk" "sed" "grep" "tar" "wc" "seq" "gzip" "which" "openssl" "nice" "ionice"; do
@@ -213,5 +235,4 @@ done
 ACTUAL_HOSTNAME="$(get_hostname)"
 logger -t "creamcloud-backup" -- "Configured hostname is ${HOSTNAME}."
 logger -t "creamcloud-backup" -- "Actual hostname is ${ACTUAL_HOSTNAME}."
-
 logger -t "creamcloud-backup" -- "${TITLE} started on ${HOSTNAME} at $(date)."
