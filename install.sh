@@ -1,22 +1,22 @@
 #!/bin/bash
-# CloudVPS Boss - Duplicity wrapper to back up to OpenStack Swift
-# Copyright (C) 2018 Remy van Elst. (CloudVPS Backup to Object Store Script)
-# Author: Remy van Elst, https://raymii.org
 #
-# This program is free software; you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the
-# Free Software Foundation; either version 2 of the License, or (at your
-# option) any later version.
+#        ▄▄███████▄▄
+#     ▄███████████████▄
+#   ▄███▐███▀▀▄▄▄▄▀▀████▄
+#  ████▐██ ███▀▀▀███▄▀███▌   ▄█████▄ ██▄▄███▌ ▄█████▄  ▄██████▄ ██▌▄████▄▄████▄
+# ▐███▌██ ██       ██▌████  ▐███   ▀ ▀███▀▀▀ ███▀  ███ ▀▀   ███  ███▀▀████▀▀███▌
+# ▐███▌██ ▀█     █ ▐██▐███  ▐██▌     ▐██▌    █████████ ▄███████▌ ███   ███  ▐██▌
+# ▐████▄▀█▄ ▀▀  ▄█ ███▐███  ▐██▌     ▐██▌    ███      ▐███   ██▌ ███   ███  ▐██▌
+#  █████▌▀▀████▀▀ ███▐███▌   ▀█████▀ ▐██▌    ▀███████▀ █████████ ███   ██▌   ██▌
+#   ▀██████▄▄▄▄█████▐███▀
+#     ▀███████████████▀
+#        ▀▀███████▀▀
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+# ------------------------------------------------------------------------------
+# Cream Cloud Backup - Restic wrapper to back up to OpenStack Object Store
 #
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+# Copyright (C):          Cream Commerce B.V., https://www.cream.nl/
+# Based on the work of:   Remy van Elst, https://raymii.org/
 
 set -o pipefail
 
@@ -296,7 +296,7 @@ for CONF_FILE in "auth.conf" "email.conf" "backup.conf" "custom.conf" "exclude.c
     fi
 done
 
-# complicated loop to run the installer and the credentials script
+# Complicated loop to run the installer and the credentials script
 # with the correct parameters.
 for SCRIPT in "credentials.sh"; do
     if [[ "${SCRIPT}" == "credentials.sh" ]]; then
@@ -318,7 +318,7 @@ for SCRIPT in "credentials.sh"; do
     fi
 done
 
-# hostname is used by Duplicity...
+# Hostname is used as the Object Store Container
 HOSTNAME="$(get_hostname)"
 # get and set the hostname in the config. Fails if config is chattr +i.
 sed -i "s/replace_me/${HOSTNAME}/g" /etc/creamcloud-backup/backup.conf

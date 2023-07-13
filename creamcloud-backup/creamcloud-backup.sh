@@ -1,7 +1,22 @@
 #!/bin/bash
-# CloudVPS Boss - Duplicity wrapper to back up to OpenStack Swift
-# Copyright (C) 2018 Remy van Elst. (CloudVPS Backup to Object Store Script)
-# Author: Remy van Elst, https://raymii.org
+#
+#        ▄▄███████▄▄
+#     ▄███████████████▄
+#   ▄███▐███▀▀▄▄▄▄▀▀████▄
+#  ████▐██ ███▀▀▀███▄▀███▌   ▄█████▄ ██▄▄███▌ ▄█████▄  ▄██████▄ ██▌▄████▄▄████▄
+# ▐███▌██ ██       ██▌████  ▐███   ▀ ▀███▀▀▀ ███▀  ███ ▀▀   ███  ███▀▀████▀▀███▌
+# ▐███▌██ ▀█     █ ▐██▐███  ▐██▌     ▐██▌    █████████ ▄███████▌ ███   ███  ▐██▌
+# ▐████▄▀█▄ ▀▀  ▄█ ███▐███  ▐██▌     ▐██▌    ███      ▐███   ██▌ ███   ███  ▐██▌
+#  █████▌▀▀████▀▀ ███▐███▌   ▀█████▀ ▐██▌    ▀███████▀ █████████ ███   ██▌   ██▌
+#   ▀██████▄▄▄▄█████▐███▀
+#     ▀███████████████▀
+#        ▀▀███████▀▀
+#
+# ------------------------------------------------------------------------------
+# Cream Cloud Backup - Restic wrapper to back up to OpenStack Object Store
+#
+# Copyright (C):          Cream Commerce B.V., https://www.cream.nl/
+# Based on the work of:   Remy van Elst, https://raymii.org/
 
 VERSION="2.0.0"
 TITLE="CloudVPS Boss Backup ${VERSION}"
@@ -35,14 +50,14 @@ lecho "restic backup /data --repo ${BACKUP_BACKEND} --exclude-file=/etc/creamclo
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
-DUPLICITY_OUTPUT=$(restic backup /data \
+RESTIC_OUTPUT=$(restic backup /data \
     --repo ${BACKUP_BACKEND} \
     --exclude-file=/etc/creamcloud-backup/exclude.conf \
     --password-file=/etc/creamcloud-backup/restic-password.conf \
     --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e attr -e kwargs)
 
 if [[ $? -ne 0 ]]; then
-    for line in ${DUPLICITY_OUTPUT}; do
+    for line in ${RESTIC_OUTPUT}; do
             lerror ${line}
     done
     lerror "CloudVPS Boss Backup to Object Store FAILED!. Please check server ${HOSTNAME}."
@@ -57,7 +72,7 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-for line in ${DUPLICITY_OUTPUT}; do
+for line in ${RESTIC_OUTPUT}; do
         lecho "${line}"
 done
 IFS="${OLD_IFS}"
@@ -68,7 +83,7 @@ lecho "restic forget --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-ba
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
-DUPLICITY_OUTPUT=$(restic forget \
+RESTIC_OUTPUT=$(restic forget \
     --repo ${BACKUP_BACKEND} \
     --password-file=/etc/creamcloud-backup/restic-password.conf \
     --keep-daily=${KEEP_DAILY} \
@@ -76,13 +91,13 @@ DUPLICITY_OUTPUT=$(restic forget \
     --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e attr -e kwargs)
 
 if [[ $? -ne 0 ]]; then
-    for line in ${DUPLICITY_CLEANUP_OUTPUT}; do
+    for line in ${RESTIC_OUTPUT}; do
             lerror ${line}
     done
     lerror "CloudVPS Boss Cleanup FAILED!. Please check server ${HOSTNAME}."
 fi
 
-for line in ${DUPLICITY_CLEANUP_OUTPUT}; do
+for line in ${RESTIC_OUTPUT}; do
         lecho "cleanup: ${line}"
 done
 IFS="${OLD_IFS}"

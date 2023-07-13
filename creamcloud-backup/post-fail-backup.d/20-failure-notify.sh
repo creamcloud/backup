@@ -1,22 +1,22 @@
 #!/bin/bash
-# CloudVPS Boss - Duplicity wrapper to back up to OpenStack Swift
-# Copyright (C) 2018 Remy van Elst. (CloudVPS Backup to Object Store Script)
-# Author: Remy van Elst, https://raymii.org
 #
-# This program is free software; you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the
-# Free Software Foundation; either version 2 of the License, or (at your
-# option) any later version.
+#        ▄▄███████▄▄
+#     ▄███████████████▄
+#   ▄███▐███▀▀▄▄▄▄▀▀████▄
+#  ████▐██ ███▀▀▀███▄▀███▌   ▄█████▄ ██▄▄███▌ ▄█████▄  ▄██████▄ ██▌▄████▄▄████▄
+# ▐███▌██ ██       ██▌████  ▐███   ▀ ▀███▀▀▀ ███▀  ███ ▀▀   ███  ███▀▀████▀▀███▌
+# ▐███▌██ ▀█     █ ▐██▐███  ▐██▌     ▐██▌    █████████ ▄███████▌ ███   ███  ▐██▌
+# ▐████▄▀█▄ ▀▀  ▄█ ███▐███  ▐██▌     ▐██▌    ███      ▐███   ██▌ ███   ███  ▐██▌
+#  █████▌▀▀████▀▀ ███▐███▌   ▀█████▀ ▐██▌    ▀███████▀ █████████ ███   ██▌   ██▌
+#   ▀██████▄▄▄▄█████▐███▀
+#     ▀███████████████▀
+#        ▀▀███████▀▀
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+# ------------------------------------------------------------------------------
+# Cream Cloud Backup - Restic wrapper to back up to OpenStack Object Store
 #
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+# Copyright (C):          Cream Commerce B.V., https://www.cream.nl/
+# Based on the work of:   Remy van Elst, https://raymii.org/
 
 VERSION="2.0.0"
 TITLE="CloudVPS Boss Failure Notify ${VERSION}"
@@ -38,10 +38,9 @@ for COMMAND in "mail"; do
 done
 
 getlogging() {
-    if [[ -f /var/log/duplicity.log ]]; then
-        lecho "200 most recent lines in /var/log/duplicity.log:"
-        tail -n 200  /var/log/duplicity.log
-
+    if [[ -f /var/log/restic.log ]]; then
+        lecho "200 most recent lines in /var/log/restic.log:"
+        tail -n 200  /var/log/restic.log
     else
         if [[ -f "/var/log/messages" ]]; then
             lecho "10 most recent lines with creamcloud-backup ERROR in /var/log/messages:"

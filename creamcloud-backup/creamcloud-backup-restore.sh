@@ -1,25 +1,25 @@
 #!/bin/bash
-# CloudVPS Boss - Duplicity wrapper to back up to OpenStack Swift
-# Copyright (C) 2018 Remy van Elst. (CloudVPS Backup to Object Store Script)
-# Author: Remy van Elst, https://raymii.org
 #
-# This program is free software; you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the
-# Free Software Foundation; either version 2 of the License, or (at your
-# option) any later version.
+#        ▄▄███████▄▄
+#     ▄███████████████▄
+#   ▄███▐███▀▀▄▄▄▄▀▀████▄
+#  ████▐██ ███▀▀▀███▄▀███▌   ▄█████▄ ██▄▄███▌ ▄█████▄  ▄██████▄ ██▌▄████▄▄████▄
+# ▐███▌██ ██       ██▌████  ▐███   ▀ ▀███▀▀▀ ███▀  ███ ▀▀   ███  ███▀▀████▀▀███▌
+# ▐███▌██ ▀█     █ ▐██▐███  ▐██▌     ▐██▌    █████████ ▄███████▌ ███   ███  ▐██▌
+# ▐████▄▀█▄ ▀▀  ▄█ ███▐███  ▐██▌     ▐██▌    ███      ▐███   ██▌ ███   ███  ▐██▌
+#  █████▌▀▀████▀▀ ███▐███▌   ▀█████▀ ▐██▌    ▀███████▀ █████████ ███   ██▌   ██▌
+#   ▀██████▄▄▄▄█████▐███▀
+#     ▀███████████████▀
+#        ▀▀███████▀▀
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+# ------------------------------------------------------------------------------
+# Cream Cloud Backup - Restic wrapper to back up to OpenStack Object Store
 #
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+# Copyright (C):          Cream Commerce B.V., https://www.cream.nl/
+# Based on the work of:   Remy van Elst, https://raymii.org/
 
 VERSION="2.0.0"
-TITLE="CloudVPS Boss Recovery ${VERSION}"
+TITLE="CloudVPS Boss Restore ${VERSION}"
 
 if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
     lerror "Cannot find /etc/creamcloud-backup/common.sh"
@@ -29,11 +29,11 @@ source /etc/creamcloud-backup/common.sh
 
 lecho "${TITLE} started on ${HOSTNAME} at $(date)."
 
-for COMMAND in "duplicity" "rsync" "gzip" "sed" "grep" "tar" "which" "dialog" "openssl"; do
+for COMMAND in "restic" "rsync" "gzip" "sed" "grep" "tar" "which" "dialog" "openssl"; do
     command_exists "${COMMAND}"
 done
 
-DIALOG_1_MESSAGE="Hello. This is the CloudVPS Boss Restore script. \n\nIt will restore either files or a database from your Object Store Backup. The script will ask the following questions before restoring:\n\n - Hostname \n - Type (File/Database)\n - Path/Database Name \n - Restore from date/time\n\nPlease press return to continue."
+DIALOG_1_MESSAGE="Hello. This is the Cream Cloud Backup Restore script. \n\nIt will restore either files or a database from your Object Store Backup. The script will ask the following questions before restoring:\n\n - Hostname \n - Type (File/Database)\n - Path/Database Name \n - Restore from Snapshot ID\n\nPlease press return to continue."
 
 DIALOG_2_MESSAGE="Please enter the hostname of the backup you want to restore. \n\nIt is pre-filled with the currently configured hostname (from backup.conf which was set during installation). If this is not equal to when the backups were made, the restore will fail. \nDo not enter the domain name or a dot at the end. For tank.example.org just enter tank"
 
@@ -85,36 +85,31 @@ if [[ "${RESTORE_TYPE}" == 1 ]]; then
         RESTORE_PATH="/var/restore.${PID}/"
     fi
 
-    dialog --title "${TITLE} - Restore from Date" --inputbox "${DIALOG_7_MESSAGE}" 0 0 2> "/tmp/${PID}.restore-datetime"
+    dialog --title "${TITLE} - Restore from Snapshot ID" --inputbox "${DIALOG_7_MESSAGE}" 0 0 2> "/tmp/${PID}.restore-snapshotid"
 
-    RESTORE_DATETIME=$(cat /tmp/${PID}.restore-datetime && rm /tmp/${PID}.restore-datetime)
+    RESTORE_SNAPSHOTID=$(cat /tmp/${PID}.restore-snapshotid && rm /tmp/${PID}.restore-snapshotid)
 
-    check_choice RESTORE_DATETIME "Restore date/time"
+    check_choice RESTORE_SNAPSHOTID "Restore Snapshot ID"
 
-    DIALOG_8_MESSAGE="Restoring file/folder \"$(dirname ${ORIGINAL_PATH})/$(basename ${ORIGINAL_PATH})\" from time ${RESTORE_DATETIME} for host ${HOSTNAME}.\n\nIt will be restored to ${RESTORE_PATH} .\nIf you want to cancel, press CTRL+C now. \nOtherwise, press return to continue."
+    DIALOG_8_MESSAGE="Restoring file/folder \"$(dirname ${ORIGINAL_PATH})/$(basename ${ORIGINAL_PATH})\" from time ${RESTORE_SNAPSHOTID} for host ${HOSTNAME}.\n\nIt will be restored to ${RESTORE_PATH} .\nIf you want to cancel, press CTRL+C now. \nOtherwise, press return to continue."
 
     dialog --title "${TITLE} - Restore" --msgbox "${DIALOG_8_MESSAGE}" 20 70
 
     echo; echo; echo; echo; echo; echo;
-    lecho "Restoring file/folder \"$(dirname ${ORIGINAL_PATH})/$(basename ${ORIGINAL_PATH})\" from time ${RESTORE_DATETIME} for host ${HOSTNAME}. It will be restored to ${RESTORE_PATH}. Date: $(date)."
+    lecho "Restoring file/folder \"$(dirname ${ORIGINAL_PATH})/$(basename ${ORIGINAL_PATH})\" from time ${RESTORE_SNAPSHOTID} for host ${HOSTNAME}. It will be restored to ${RESTORE_PATH}. Date: $(date)."
 
     RELATIVE_PATH="${ORIGINAL_PATH:1}"
 
-    lecho "duplicity --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} --allow-source-mismatch --num-retries 100 --tempdir \"${TEMPDIR}\" -t ${RESTORE_DATETIME} --file-to-restore ${RELATIVE_PATH} ${BACKUP_BACKEND} \"/var/restore.${PID}\""
+    lecho "restic restore ${RESTORE_SNAPSHOTID} --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --include=${RELATIVE_PATH} --target=/var/restore.${PID} --verbose=1"
 
     OLD_IFS="${IFS}"
     IFS=$'\n'
-    RESTORE_OUTPUT=$(duplicity \
-        --file-prefix="${HOSTNAME}." \
-        --name="${HOSTNAME}." \
-        ${ENCRYPTION_OPTIONS} \
-        ${CUSTOM_DUPLICITY_OPTIONS} \
-        --allow-source-mismatch \
-        --num-retries 100 \
-        --tempdir "${TEMPDIR}" \
-        -t ${RESTORE_DATETIME} \
-        --file-to-restore ${RELATIVE_PATH} \
-        ${BACKUP_BACKEND} "/var/restore.${PID}" 2>&1 | grep -v -e Warning -e  pkg_resources -e oslo)
+    RESTORE_OUTPUT=$(restic restore ${RESTORE_SNAPSHOTID} \
+        --repo ${BACKUP_BACKEND} \
+        --password-file=/etc/creamcloud-backup/restic-password.conf \
+	      --include=${RELATIVE_PATH} \
+        --target=/var/restore.${PID} \
+        --verbose=1 2>&1 | grep -v -e Warning -e  pkg_resources -e oslo)
         if [[ $? -ne 0 ]]; then
             for line in ${RESTORE_OUTPUT}; do
                 lerror ${line}
@@ -168,20 +163,20 @@ if [[ "${RESTORE_TYPE}" == 2 ]]; then
 
     check_choice MYSQL_DB_NAME "MySQL Database Name"
 
-    dialog --title "${TITLE} - Restore from Date" --inputbox "${DIALOG_7_MESSAGE}" 0 0 2> "/tmp/${PID}.restore-datetime"
+    dialog --title "${TITLE} - Restore from Date" --inputbox "${DIALOG_7_MESSAGE}" 0 0 2> "/tmp/${PID}.restore-snapshotid"
 
-    RESTORE_DATETIME="$(cat /tmp/${PID}.restore-datetime && rm /tmp/${PID}.restore-datetime)"
+    RESTORE_SNAPSHOTID="$(cat /tmp/${PID}.restore-snapshotid && rm /tmp/${PID}.restore-snapshotid)"
 
-    check_choice RESTORE_DATETIME "Restore date/time"
+    check_choice RESTORE_SNAPSHOTID "Restore date/time"
 
-    DIALOG_9_MESSAGE="Restoring MySQL database ${MYSQL_DB_NAME} from time ${RESTORE_DATETIME} for host ${HOSTNAME}. \nIt will be restored to /var/restore.${PID} and then placed back in the MySQL server. \nIf you want to cancel, press CTRL+C now. \nOtherwise, press return to continue."
+    DIALOG_9_MESSAGE="Restoring MySQL database ${MYSQL_DB_NAME} from time ${RESTORE_SNAPSHOTID} for host ${HOSTNAME}. \nIt will be restored to /var/restore.${PID} and then placed back in the MySQL server. \nIf you want to cancel, press CTRL+C now. \nOtherwise, press return to continue."
 
     dialog --title "${TITLE} - Restore" --msgbox "${DIALOG_9_MESSAGE}" 10 70
 
     echo; echo; echo; echo; echo; echo;
-    lecho "Restoring MySQL database ${MYSQL_DB_NAME} from time ${RESTORE_DATETIME} for host ${HOSTNAME}. It will be restored to /var/restore.${PID} and then placed back in the MySQL server. Date: $(date)."
+    lecho "Restoring MySQL database ${MYSQL_DB_NAME} from time ${RESTORE_SNAPSHOTID} for host ${HOSTNAME}. It will be restored to /var/restore.${PID} and then placed back in the MySQL server. Date: $(date)."
 
-    lecho "duplicity --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} --allow-source-mismatch --num-retries 100 --tempdir=\"${TEMPDIR}\" -t ${RESTORE_DATETIME} --file-to-restore var/backups/sql/${MYSQL_DB_NAME}.sql.gz ${BACKUP_BACKEND} \"/var/restore.${PID}.gz\""
+    lecho "duplicity --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} --allow-source-mismatch --num-retries 100 --tempdir=\"${TEMPDIR}\" -t ${RESTORE_SNAPSHOTID} --file-to-restore var/backups/sql/${MYSQL_DB_NAME}.sql.gz ${BACKUP_BACKEND} \"/var/restore.${PID}.gz\""
 
     OLD_IFS="${IFS}"
     IFS=$'\n'

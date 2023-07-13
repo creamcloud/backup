@@ -1,7 +1,7 @@
-CloudVPS Boss (CloudVPS Backup to Object Store Script) - Duplicity 
-wrapper to back up to OpenStack Swift, Object Store. Copyright (C) 
-2016 CloudVPS. 
-Author: Remy van Elst, https://raymii.org
+Cream Cloud Backup - Restic wrapper to back up to OpenStack Object Store
+
+Copyright (C):          Cream Commerce B.V., https://www.cream.nl/
+Based on the work of:   Remy van Elst, https://raymii.org/
 
 This program is free software; you can redistribute it and/or modify it 
 under the terms of the GNU General Public License as published by the 
