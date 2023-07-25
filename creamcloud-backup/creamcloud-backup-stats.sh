@@ -27,7 +27,7 @@ if [[ ! -f "/etc/creamcloud-backup/common.sh" ]]; then
 fi
 source /etc/creamcloud-backup/common.sh
 
-USED="$(swift stat --lh ${CONTAINER_NAME} 2>&1 | awk '/Bytes/ { print $2}' | grep -v -e Warning -e pkg_resources -e oslo)"
+USED="$(swift stat --lh ${HOSTNAME} 2>&1 | awk '/Bytes/ { print $2}' | grep -v -e Warning -e pkg_resources -e oslo)"
 
 echo "========================================="
 lecho "Start of CloudVPS Boss Status ${VERSION}"
