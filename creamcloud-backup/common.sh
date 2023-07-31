@@ -210,6 +210,7 @@ if [[ ! -d "/etc/creamcloud-backup/status/${HOSTNAME}" ]]; then
     RESTIC_OUTPUT=$(restic init / \
         --repo ${BACKUP_BACKEND} \
         --password-file=/etc/creamcloud-backup/restic-password.conf \
+        --no-cache \
         --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e attr -e kwargs)
 
     if [[ $? -ne 0 ]]; then

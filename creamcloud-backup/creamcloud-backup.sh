@@ -46,7 +46,7 @@ echo
 lecho "Create full backup if last full backup is older than: ${FULL_IF_OLDER_THAN} and keep at max ${FULL_TO_KEEP} full backups."
 lecho "Starting Restic"
 
-lecho "restic backup /data --repo ${BACKUP_BACKEND} --exclude-file=/etc/creamcloud-backup/exclude.conf --password-file=/etc/creamcloud-backup/restic-password.conf --verbose=1"
+lecho "restic backup /data --repo ${BACKUP_BACKEND} --exclude-file=/etc/creamcloud-backup/exclude.conf --password-file=/etc/creamcloud-backup/restic-password.conf --no-cache --verbose=1"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
@@ -54,6 +54,7 @@ RESTIC_OUTPUT=$(restic backup /data \
     --repo ${BACKUP_BACKEND} \
     --exclude-file=/etc/creamcloud-backup/exclude.conf \
     --password-file=/etc/creamcloud-backup/restic-password.conf \
+    --no-cache \
     --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e attr -e kwargs)
 
 if [[ $? -ne 0 ]]; then
@@ -79,7 +80,7 @@ IFS="${OLD_IFS}"
 
 echo
 lecho "CloudVPS Boss Cleanup ${VERSION} started on $(date). Removing all and keep ${KEEP_DAILY} daily backups and ${KEEP_WEEKLY} weekly backups."
-lecho "restic forget --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --keep-daily=${KEEP_DAILY} --keep-weekly=${KEEP_WEEKLY} --verbose=1"
+lecho "restic forget --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --keep-daily=${KEEP_DAILY} --keep-weekly=${KEEP_WEEKLY} --no-cache --verbose=1"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
@@ -88,6 +89,7 @@ RESTIC_OUTPUT=$(restic forget \
     --password-file=/etc/creamcloud-backup/restic-password.conf \
     --keep-daily=${KEEP_DAILY} \
     --keep-weekly=${KEEP_WEEKLY} \
+    --no-cache \
     --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e attr -e kwargs)
 
 if [[ $? -ne 0 ]]; then

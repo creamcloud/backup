@@ -29,13 +29,14 @@ source /etc/creamcloud-backup/common.sh
 
 lecho "${TITLE} started on ${HOSTNAME} at $(date)."
 
-lecho "restic check --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --verbose=1"
+lecho "restic check --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --no-cache --verbose=1"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
 RESTIC_OUTPUT=$(restic check \
     --repo ${BACKUP_BACKEND} \
     --password-file=/etc/creamcloud-backup/restic-password.conf \
+    --no-cache
     --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs)
 
 if [[ $? -ne 0 ]]; then
