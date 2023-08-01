@@ -44,7 +44,7 @@ PATH=/usr/local/bin:$PATH
 PID="$$"
 
 # Have Restic use less memory when backing up.
-export GOGC=20
+export GOGC=10
 
 # Do not edit. Dirty Workaround for an openstack pbr bug. If not set, everything swift will fail miserably with errors like; Exception: Versioning for this project requires either an sdist tarball, or access to an upstream git repository. Are you sure that git is installed?
 # Will be fixed when new pbr version supports the wheel install used by pip.
