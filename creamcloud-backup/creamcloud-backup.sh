@@ -46,11 +46,11 @@ echo
 lecho "Create full backup if last full backup is older than: ${FULL_IF_OLDER_THAN} and keep at max ${FULL_TO_KEEP} full backups."
 lecho "Starting Restic"
 
-lecho "restic backup /data --repo ${BACKUP_BACKEND} --exclude-file=/etc/creamcloud-backup/exclude.conf --password-file=/etc/creamcloud-backup/restic-password.conf --no-cache --verbose=1"
+lecho "restic backup / --repo ${BACKUP_BACKEND} --exclude-file=/etc/creamcloud-backup/exclude.conf --password-file=/etc/creamcloud-backup/restic-password.conf --no-cache --verbose=1"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
-RESTIC_OUTPUT=$(restic backup /data \
+RESTIC_OUTPUT=$(restic backup / \
     --repo ${BACKUP_BACKEND} \
     --exclude-file=/etc/creamcloud-backup/exclude.conf \
     --password-file=/etc/creamcloud-backup/restic-password.conf \
