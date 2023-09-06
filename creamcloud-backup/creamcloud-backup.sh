@@ -59,7 +59,7 @@ RESTIC_OUTPUT=$(restic backup / \
     --no-cache \
     --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e attr -e kwargs)
 
-if [[ $? -ne 0 ]]; then
+if [[ $? -eq 1 ]]; then
     for line in ${RESTIC_OUTPUT}; do
             lerror ${line}
     done
