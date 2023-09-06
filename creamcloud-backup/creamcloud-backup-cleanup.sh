@@ -29,7 +29,7 @@ source /etc/creamcloud-backup/common.sh
 
 lecho "${TITLE} started on ${HOSTNAME} at $(date)."
 
-lecho "restic unlock --remove-all --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --no-cache --verbose=1"
+lecho "restic unlock --remove-all --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --cleanup-cache --no-cache --verbose=1"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
@@ -37,6 +37,7 @@ RESTIC_OUTPUT=$(restic unlock \
     --remove-all \
     --repo ${BACKUP_BACKEND} \
     --password-file=/etc/creamcloud-backup/restic-password.conf \
+    --cleanup-cache \
     --no-cache \
     --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs)
 
@@ -52,13 +53,14 @@ for line in ${RESTIC_OUTPUT}; do
 done
 IFS="${OLD_IFS}"
 
-lecho "restic prune --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --no-cache --verbose=1"
+lecho "restic prune --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --cleanup-cache --no-cache --verbose=1"
 
 OLD_IFS="${IFS}"
 IFS=$'\n'
 RESTIC_OUTPUT=$(restic prune \
     --repo ${BACKUP_BACKEND} \
     --password-file=/etc/creamcloud-backup/restic-password.conf \
+    --cleanup-cache \
     --no-cache \
     --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs)
 

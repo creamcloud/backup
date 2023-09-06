@@ -44,6 +44,7 @@ IFS=$'\n'
 RESTIC_OUTPUT=$(restic snapshots \
     --repo ${BACKUP_BACKEND} \
     --password-file=/etc/creamcloud-backup/restic-password.conf \
+    --cleanup-cache \
     --no-cache \
     --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs)
 for line in ${RESTIC_OUTPUT}; do
