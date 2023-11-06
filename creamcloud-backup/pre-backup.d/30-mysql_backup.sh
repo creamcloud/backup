@@ -189,7 +189,7 @@ fi
 
 for DB in ${DATABASES}; do
     lecho "Dumping database ${DB} to /var/backups/sql/${DB}.sql.gz"
-    ionice -c2 nice -n19 mysqldump --opt --single-transaction --quick --hex-blob --force --skip-lock-tables "${DB}" | ionice -c2 nice -n19 gzip > "/var/backups/sql/${DB}.sql.gz"
+    ionice -c2 nice -n19 mysqldump --opt --single-transaction --quick --hex-blob --force --skip-lock-tables --max_allowed_packet=128M "${DB}" | ionice -c2 nice -n19 gzip > "/var/backups/sql/${DB}.sql.gz"
     if [[ $? -ne 0 ]]; then
         lerror "Database dump ${DB} failed."
     else
