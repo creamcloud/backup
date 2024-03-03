@@ -1,4 +1,3 @@
-#!/bin/bash
 #
 #        ▄▄███████▄▄
 #     ▄███████████████▄
@@ -29,4 +28,3 @@ RANDM RANDH * * * root /usr/local/bin/creamcloud-backup
 
 # CloudVPS Boss Update
 0 1 1 * * root /usr/local/bin/creamcloud-backup-update
-=======
