@@ -90,7 +90,6 @@ fi
 
 OS_BASE_AUTH_URL="https://auth.teamblue.cloud/v3"
 OS_AUTH_URL="${OS_BASE_AUTH_URL}/auth/tokens"
-OS_TENANTS_URL="${OS_BASE_AUTH_URL}/auth/projects"
 
 command -v curl > /dev/null 2>&1
 if [[ $? -ne 0 ]]; then
