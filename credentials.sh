@@ -70,9 +70,9 @@ elif [[ -z ${2} || -z ${1} || -z ${3} ]]; then
     read -e -s -p "Openstack Password (not shown): " PASSWORD
     echo
     read -e -p "Openstack Project ID: " PROJECT_ID
-    read -e -p "OpenStack User Domain Name: " OS_USER_DOMAIN_NAME
-    read -e -p "OpenStack Project Domain Name: " OS_PROJECT_DOMAIN_NAME
-    read -e -p "Openstack Region: " OS_REGION
+    read -e -p "OpenStack User Domain Name: " -i "transip" OS_USER_DOMAIN_NAME
+    read -e -p "OpenStack Project Domain Name: " -i "transip" OS_PROJECT_DOMAIN_NAME
+    read -e -p "Openstack Region: " -i "NL" OS_REGION
 else
     USERNAME="${1}"
     PASSWORD="${2}"
@@ -100,10 +100,10 @@ if [[ $? -ne 0 ]]; then
         lerror "Please install curl or wget"
         exit 1
     else
-        AUTH_TOKEN=$(wget -q --header="Content-Type: application/json" --header "Accept: application/json" -O - --post-data='{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${PROJECT_ID}'"}}}}' "${OS_AUTH_URL}" | grep -o '\"id\": \"[^\"]*\"' | awk -F\" '{print $4}' | sed -n 1p)
+        PROJECT_NAME=$(wget -q --header="Content-Type: application/json" --header "Accept: application/json" -O - --post-data='{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${PROJECT_ID}'"}}}}' "${OS_AUTH_URL}" | jq -r '.token.project.name' )
     fi
 else
-    AUTH_TOKEN=$(curl -s "${OS_AUTH_URL}" -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d '{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${PROJECT_ID}'"}}}}' | grep -o '\"id\": \"[^\"]*\"' | awk -F\" '{print $4}' | sed -n 1p)
+    PROJECT_NAME=$(curl -s "${OS_AUTH_URL}" -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d '{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${PROJECT_ID}'"}}}}' | jq -r '.token.project.name' )
 fi
 
 if [[ -z "${PROJECT_ID}" ]]; then
@@ -111,8 +111,8 @@ if [[ -z "${PROJECT_ID}" ]]; then
     exit 1
 fi
 
-if [[ -z "${AUTH_TOKEN}" ]]; then
-    lecho "AUTH_TOKEN empty. Trying again."
+if [[ -z "${PROJECT_NAME}" ]]; then
+    lecho "Authentication failed!. Trying again."
     sleep 5
     command -v curl > /dev/null 2>&1
     if [[ $? -ne 0 ]]; then
@@ -122,13 +122,13 @@ if [[ -z "${AUTH_TOKEN}" ]]; then
             lerror "Please install curl or wget"
             exit 1
         else
-            AUTH_TOKEN=$(wget -q --header="Content-Type: application/json" --header "Accept: application/json" -O - --post-data='{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${PROJECT_ID}'"}}}}' "${OS_AUTH_URL}" | grep -o '\"id\": \"[^\"]*\"' | awk -F\" '{print $4}' | sed -n 1p)
+            PROJECT_NAME=$(wget -q --header="Content-Type: application/json" --header "Accept: application/json" -O - --post-data='{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${PROJECT_ID}'"}}}}' "${OS_AUTH_URL}" | jq -r '.token.project.name')
         fi
     else
-        AUTH_TOKEN=$(curl -s "${OS_AUTH_URL}" -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d '{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${PROJECT_ID}'"}}}}' | grep -o '\"id\": \"[^\"]*\"' | awk -F\" '{print $4}' | sed -n 1p)
+        PROJECT_NAME=$(curl -s "${OS_AUTH_URL}" -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d '{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${PROJECT_ID}'"}}}}' | jq -r '.token.project.name' )
     fi
-    if [[ -z "${AUTH_TOKEN}" ]]; then
-        lerror "AUTH_TOKEN could not be found after two tries. Check username, password or network connectivity."
+    if [[ -z "${PROJECT_NAME}" ]]; then
+        lerror "Authentication failed after two tries! Check username, password or network connectivity."
         exit 1
     fi
 fi
@@ -139,7 +139,7 @@ if [[ ! -f "/etc/creamcloud-backup/auth.conf" ]]; then
     cat << EOF > /etc/creamcloud-backup/auth.conf
 export OS_USERNAME="${USERNAME}"
 export OS_PASSWORD="${PASSWORD}"
-export OS_PROJECT_ID="${PROJECT_ID}"
+export OS_PROJECT_NAME="${PROJECT_NAME}"
 export OS_USER_DOMAIN_NAME="${OS_USER_DOMAIN_NAME}"
 export OS_PROJECT_DOMAIN_NAME="${OS_PROJECT_DOMAIN_NAME}"
 export OS_REGION_NAME=${OS_REGION}

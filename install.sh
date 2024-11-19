@@ -138,7 +138,7 @@ install_packages_debian() {
         lerror "'apt-get update' failed."
         exit 1
     fi
-    for PACKAGE in awk sed grep tar gzip which openssl curl wget screen vim haveged unattended-upgrades; do
+    for PACKAGE in jq awk sed grep tar gzip which openssl curl wget screen vim haveged unattended-upgrades; do
         /usr/bin/apt-get -qq -y --force-yes -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" install "${PACKAGE}" >/dev/null 2>&1
     done
 }
@@ -148,7 +148,7 @@ install_packages_centos() {
 
     yum-config-manager --add-repo https://copr.fedorainfracloud.org/coprs/copart/restic/repo/epel-7/copart-restic-epel-7.repo
 
-    for PACKAGE in awk sed grep tar gzip which openssl curl wget screen vim haveged yum-cron restic; do
+    for PACKAGE in jq awk sed grep tar gzip which openssl curl wget screen vim haveged yum-cron restic; do
         yum -q -y --disablerepo="*" --disableexcludes=main --enablerepo="base" --enablerepo="updates" --enablerepo="copr:copr.fedorainfracloud.org:copart:restic" install "${PACKAGE}" >/dev/null 2>&1
     done
 }
@@ -172,7 +172,7 @@ case "${DISTRO_NAME}" in
 
     *)
     lerror "Distro unknown or not supported"
-    lerror "Please install the required packages manually. (awk sed grep tar gzip which openssl curl wget screen vim haveged restic)"
+    lerror "Please install the required packages manually. (jq awk sed grep tar gzip which openssl curl wget screen vim haveged restic)"
     lerror "Instructions on installing restic can be found at https://restic.readthedocs.io/en/stable/020_installation.html"
     exit 1
     ;;
