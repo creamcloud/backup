@@ -53,7 +53,7 @@ usage() {
     echo "To install Cream Cloud Backup with interactive username password question:"
     echo "./$0"
     echo; echo "To install Cream Cloud Backup non-interactive:"
-    echo "./$0 username@domain.tld 'passw0rd' 'tenant id'"
+    echo "./$0 username@domain.tld 'passw0rd' 'project id' 'region' 'user domain name' 'project domain name'"
 }
 
 if [[ ! -z "$1" ]]; then
@@ -172,6 +172,8 @@ case "${DISTRO_NAME}" in
 
     *)
     lerror "Distro unknown or not supported"
+    lerror "Please install the required packages manually. (awk sed grep tar gzip which openssl curl wget screen vim haveged restic)"
+    lerror "Instructions on installing restic can be found at https://restic.readthedocs.io/en/stable/020_installation.html"
     exit 1
     ;;
 esac
