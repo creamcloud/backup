@@ -67,22 +67,22 @@ if [[ "${1}" == "help" ]]; then
 elif [[ -z ${2} || -z ${1} || -z ${3} ]]; then
     echo; echo; echo; echo; echo;
     read -e -p "Openstack Username (user@example.org): " USERNAME
-    read -e -s -p "Openstack Password (not shown):" PASSWORD
+    read -e -s -p "Openstack Password (not shown): " PASSWORD
     echo
-    read -e -p "Openstack Project ID: " TENANT_ID
+    read -e -p "Openstack Project ID: " PROJECT_ID
     read -e -p "OpenStack User Domain Name: " OS_USER_DOMAIN_NAME
     read -e -p "OpenStack Project Domain Name: " OS_PROJECT_DOMAIN_NAME
     read -e -p "Openstack Region: " OS_REGION
 else
     USERNAME="${1}"
     PASSWORD="${2}"
-    TENANT_ID="${3}"
+    PROJECT_ID="${3}"
     OS_REGION="${4}"
     OS_USER_DOMAIN_NAME="${5}"
     OS_PROJECT_DOMAIN_NAME="${6}"
 fi
 
-if [[ -z "${USERNAME}" || -z "${PASSWORD}" || -z "${TENANT_ID}" || -z "${OS_REGION}" || -z "${OS_USER_DOMAIN_NAME}" || -z "${OS_PROJECT_DOMAIN_NAME}" ]]; then
+if [[ -z "${USERNAME}" || -z "${PASSWORD}" || -z "${PROJECT_ID}" || -z "${OS_REGION}" || -z "${OS_USER_DOMAIN_NAME}" || -z "${OS_PROJECT_DOMAIN_NAME}" ]]; then
     echo
     lerror "Need username, password, project id, region and domain names."
     exit 1
@@ -100,13 +100,13 @@ if [[ $? -ne 0 ]]; then
         lerror "Please install curl or wget"
         exit 1
     else
-        AUTH_TOKEN=$(wget -q --header="Content-Type: application/json" --header "Accept: application/json" -O - --post-data='{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${TENANT_ID}'"}}}}' "${OS_AUTH_URL}" | grep -o '\"id\": \"[^\"]*\"' | awk -F\" '{print $4}' | sed -n 1p)
+        AUTH_TOKEN=$(wget -q --header="Content-Type: application/json" --header "Accept: application/json" -O - --post-data='{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${PROJECT_ID}'"}}}}' "${OS_AUTH_URL}" | grep -o '\"id\": \"[^\"]*\"' | awk -F\" '{print $4}' | sed -n 1p)
     fi
 else
-    AUTH_TOKEN=$(curl -s "${OS_AUTH_URL}" -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d '{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${TENANT_ID}'"}}}}' | grep -o '\"id\": \"[^\"]*\"' | awk -F\" '{print $4}' | sed -n 1p)
+    AUTH_TOKEN=$(curl -s "${OS_AUTH_URL}" -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d '{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${PROJECT_ID}'"}}}}' | grep -o '\"id\": \"[^\"]*\"' | awk -F\" '{print $4}' | sed -n 1p)
 fi
 
-if [[ -z "${TENANT_ID}" ]]; then
+if [[ -z "${PROJECT_ID}" ]]; then
     lerror "Project ID could not be found. Check username, password or network connectivity."
     exit 1
 fi
@@ -122,10 +122,10 @@ if [[ -z "${AUTH_TOKEN}" ]]; then
             lerror "Please install curl or wget"
             exit 1
         else
-            AUTH_TOKEN=$(wget -q --header="Content-Type: application/json" --header "Accept: application/json" -O - --post-data='{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${TENANT_ID}'"}}}}' "${OS_AUTH_URL}" | grep -o '\"id\": \"[^\"]*\"' | awk -F\" '{print $4}' | sed -n 1p)
+            AUTH_TOKEN=$(wget -q --header="Content-Type: application/json" --header "Accept: application/json" -O - --post-data='{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${PROJECT_ID}'"}}}}' "${OS_AUTH_URL}" | grep -o '\"id\": \"[^\"]*\"' | awk -F\" '{print $4}' | sed -n 1p)
         fi
     else
-        AUTH_TOKEN=$(curl -s "${OS_AUTH_URL}" -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d '{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${TENANT_ID}'"}}}}' | grep -o '\"id\": \"[^\"]*\"' | awk -F\" '{print $4}' | sed -n 1p)
+        AUTH_TOKEN=$(curl -s "${OS_AUTH_URL}" -X POST -H "Content-Type: application/json" -H "Accept: application/json"  -d '{"auth": {"identity": {"methods": ["password"],"region": "'${OS_REGION}'","password": {"user": {"name": "'${USERNAME}'","domain": { "name": "'${OS_USER_DOMAIN_NAME}'" },"password": "'${PASSWORD}'"}}},"scope": {"project": {"id": "'${PROJECT_ID}'"}}}}' | grep -o '\"id\": \"[^\"]*\"' | awk -F\" '{print $4}' | sed -n 1p)
     fi
     if [[ -z "${AUTH_TOKEN}" ]]; then
         lerror "AUTH_TOKEN could not be found after two tries. Check username, password or network connectivity."
@@ -139,7 +139,7 @@ if [[ ! -f "/etc/creamcloud-backup/auth.conf" ]]; then
     cat << EOF > /etc/creamcloud-backup/auth.conf
 export OS_USERNAME="${USERNAME}"
 export OS_PASSWORD="${PASSWORD}"
-export OS_PROJECT_ID="${TENANT_ID}"
+export OS_PROJECT_ID="${PROJECT_ID}"
 export OS_USER_DOMAIN_NAME="${OS_USER_DOMAIN_NAME}"
 export OS_PROJECT_DOMAIN_NAME="${OS_PROJECT_DOMAIN_NAME}"
 export OS_REGION_NAME=${OS_REGION}
@@ -153,9 +153,9 @@ fi
 
 lecho "Username: ${USERNAME}"
 lecho "Auth URL: ${OS_BASE_AUTH_URL}"
-lecho "Checking Swift Container for Backups: https://public.objectstore.eu/v1/${TENANT_ID}/creamcloud-backup/"
+lecho "Checking Swift Container for Backups: https://public.objectstore.eu/v1/${PROJECT_ID}/creamcloud-backup/"
 
-curl -s -o /dev/null -X PUT -T "/etc/hosts" --user "${USERNAME}:${PASSWORD}" "https://public.objectstore.eu/v1/${TENANT_ID}/creamcloud-backup/"
+curl -s -o /dev/null -X PUT -T "/etc/hosts" --user "${USERNAME}:${PASSWORD}" "https://public.objectstore.eu/v1/${PROJECT_ID}/creamcloud-backup/"
 if [[ $? == 60 ]]; then
     # CentOS 5...
     lecho "Curl error Peer certificate cannot be authenticated with known CA certificates."
