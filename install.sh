@@ -301,22 +301,14 @@ done
 # Complicated loop to run the installer and the credentials script
 # with the correct parameters.
 for SCRIPT in "credentials.sh"; do
-    if [[ "${SCRIPT}" == "credentials.sh" ]]; then
-        if [[ ! -z "$1" ]]; then
-            if [[ ! -z "$2" ]]; then
-                if [[ ! -z "$3" ]]; then
-                    run_script "${SCRIPT}" "$1" "$2" "$3"
-                else
-                   run_script "${SCRIPT}"
-                fi
-            else
-                run_script "${SCRIPT}"
-            fi
+    if [[ "$SCRIPT" == "credentials.sh" ]]; then
+        if [[ -n "$1" && -n "$2" && -n "$3" && -n "$4" && -n "$5" && -n "$6" ]]; then
+            run_script "$SCRIPT" "$1" "$2" "$3" "$4" "$5" "$6"
         else
-           run_script "${SCRIPT}"
+            run_script "$SCRIPT"
         fi
     else
-        run_script "${SCRIPT}"
+        run_script "$SCRIPT"
     fi
 done
 
