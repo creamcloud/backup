@@ -38,16 +38,18 @@ lecho "Start of CloudVPS Boss File Overview"
 lecho "Hostname: ${HOSTNAME}"
 lecho "$TIME_MESS"
 echo "-----------------------------------------"
-lecho "duplicity list-current-files --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} --allow-source-mismatch --num-retries 100 ${TIMEOPT} ${BACKUP_BACKEND}"
-duplicity list-current-files \
-    --file-prefix="${HOSTNAME}." \
-    --name="${HOSTNAME}." \
-    ${ENCRYPTION_OPTIONS} \
-    ${CUSTOM_DUPLICITY_OPTIONS} \
-    --allow-source-mismatch \
-    --num-retries 100 \
-    ${TIMEOPT} \
-    ${BACKUP_BACKEND} 2>&1 | grep -v -e Warning -e pkg_resources -e oslo
+lecho "Restic snapshots:"
+OLD_IFS="${IFS}"
+IFS=$'\n'
+RESTIC_OUTPUT=$(restic snapshots \
+    --repo ${BACKUP_BACKEND} \
+    --password-file=/etc/creamcloud-backup/restic-password.conf \
+    --cleanup-cache \
+    --verbose=1 2>&1 | grep -v -e Warning -e pkg_resources -e oslo -e tar -e attr -e kwargs)
+for line in ${RESTIC_OUTPUT}; do
+        lecho "${line}"
+done
+IFS="${OLD_IFS}"
 lecho "End of CloudVPS Boss File Overview"
 echo "========================================="
 
