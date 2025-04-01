@@ -67,7 +67,7 @@ run_script() {
     # log result and exit if script fails.
     if [[ -f "$1" ]]; then
         log "Starting $1"
-        bash "$1" "$2" "$3" "$4" "$5" "$6"
+        bash "$1" "$2" "$3" "$4" "$5" "$6" "$7"
         if [[ $? == 0 ]]; then
             logger -t "creamcloud-backup" -- "$1 completed."
         else
