@@ -47,7 +47,7 @@ DIALOG_5_MESSAGE="Please enter the MySQL database name.\n\nIf it exists in the b
 
 DIALOG_6_MESSAGE="Please enter the PostgreSQL database name.\n\nIf it exists in the backups it will be restored, overwriting any databases with the same name. \nMake sure PostgreSQL system user postgres exists, otherwise the restore will fail. See documentation for more info. \nAlso make sure the database server is running."
 
-DIALOG_7_MESSAGE="Please enter the restore time. \n\nThis can be a relative date like 3D (for three days ago) or 2W (for two weeks ago) - (s=seconds, m=minutes, h=hours, D=days, M=months, W=weeks, Y=years). Also accepted are w3 datetime strings like '2017-06-25T07:00:00+02:00' which means 25'th of June, 2017, 07:00 +2 UTC. YYYY/MM/DD, YYYY-MM-DD, MM/DD/YYYY, or MM-DD-YYYY are also accepted as day formats. Please read the Duplicity Man page, section Time Formats for more info."
+DIALOG_7_MESSAGE="Please enter the snapshot ID. This can be found with the command creamcloud-backup-list it is a string with random characters which looks like: 69af8005 although the characters may be different."
 
 dialog --title "${TITLE} - Introduction" --msgbox "${DIALOG_1_MESSAGE}" 20 65
 
