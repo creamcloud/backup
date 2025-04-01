@@ -254,7 +254,7 @@ log "Extracting to /etc/creamcloud-backup/"
 # some users do a chattr +i on stuff they don't want
 # overwritten. A cp -r fails and leaves inconsistent state,
 # a manual copy only fails the chattr'd things.
-for COPY_FILE in "README.md" "LICENSE.md" "CHANGELOG.md"; do
+for COPY_FILE in "README.md" "LICENSE.md"; do
     cp "${COPY_FILE}" "/etc/creamcloud-backup/${COPY_FILE}"
     if [[ "$?" -ne 0 ]]; then
         lerror "Cannot copy ${COPY_FILE} to /etc/creamcloud-backup/${COPY_FILE}."
