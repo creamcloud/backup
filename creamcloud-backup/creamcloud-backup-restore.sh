@@ -93,12 +93,12 @@ if [[ "${RESTORE_TYPE}" == 1 ]]; then
 
     check_choice RESTORE_SNAPSHOTID "Restore Snapshot ID"
 
-    DIALOG_8_MESSAGE="Restoring file/folder \"$(dirname ${ORIGINAL_PATH})/$(basename ${ORIGINAL_PATH})\" from time ${RESTORE_SNAPSHOTID} for host ${HOSTNAME}.\n\nIt will be restored to ${RESTORE_PATH} .\nIf you want to cancel, press CTRL+C now. \nOtherwise, press return to continue."
+    DIALOG_8_MESSAGE="Restoring file/folder \"$(dirname ${ORIGINAL_PATH})/$(basename ${ORIGINAL_PATH})\" from snapshot ${RESTORE_SNAPSHOTID} for host ${HOSTNAME}.\n\nIt will be restored to ${RESTORE_PATH} .\nIf you want to cancel, press CTRL+C now. \nOtherwise, press return to continue."
 
     dialog --title "${TITLE} - Restore" --msgbox "${DIALOG_8_MESSAGE}" 20 70
 
     echo; echo; echo; echo; echo; echo;
-    lecho "Restoring file/folder \"$(dirname ${ORIGINAL_PATH})/$(basename ${ORIGINAL_PATH})\" from time ${RESTORE_SNAPSHOTID} for host ${HOSTNAME}. It will be restored to ${RESTORE_PATH}. Date: $(date)."
+    lecho "Restoring file/folder \"$(dirname ${ORIGINAL_PATH})/$(basename ${ORIGINAL_PATH})\" from snapshot ${RESTORE_SNAPSHOTID} for host ${HOSTNAME}. It will be restored to ${RESTORE_PATH}. Date: $(date)."
 
     RELATIVE_PATH="${ORIGINAL_PATH:1}"
 
