@@ -169,33 +169,37 @@ if [[ "${RESTORE_TYPE}" == 2 ]]; then
 
     check_choice RESTORE_SNAPSHOTID "Restore date/time"
 
-    DIALOG_9_MESSAGE="Restoring MySQL database ${MYSQL_DB_NAME} from time ${RESTORE_SNAPSHOTID} for host ${HOSTNAME}. \nIt will be restored to /var/backups/restore.${PID} and then placed back in the MySQL server. \nIf you want to cancel, press CTRL+C now. \nOtherwise, press return to continue."
+    DIALOG_9_MESSAGE="Restoring MySQL database ${MYSQL_DB_NAME} from snapshot ${RESTORE_SNAPSHOTID} for host ${HOSTNAME}. \nIt will be restored to MySQL with the name ${MYSQL_DB_NAME}_backup. \nIf you want to cancel, press CTRL+C now. \nOtherwise, press return to continue."
 
     dialog --title "${TITLE} - Restore" --msgbox "${DIALOG_9_MESSAGE}" 10 70
 
     echo; echo; echo; echo; echo; echo;
-    lecho "Restoring MySQL database ${MYSQL_DB_NAME} from time ${RESTORE_SNAPSHOTID} for host ${HOSTNAME}. It will be restored to /var/backups/restore.${PID} and then placed back in the MySQL server. Date: $(date)."
+    lecho "Restoring MySQL database ${MYSQL_DB_NAME} from snapshot ${RESTORE_SNAPSHOTID} for host ${HOSTNAME}. It will be restored to MySQL with the name ${MYSQL_DB_NAME}_backup. Date: $(date)."
 
-    lecho "duplicity --file-prefix=\"${HOSTNAME}.\" --name=\"${HOSTNAME}.\" ${ENCRYPTION_OPTIONS} ${CUSTOM_DUPLICITY_OPTIONS} --allow-source-mismatch --num-retries 100 --tempdir=\"${TEMPDIR}\" -t ${RESTORE_SNAPSHOTID} --file-to-restore var/backups/sql/${MYSQL_DB_NAME}.sql.gz ${BACKUP_BACKEND} \"/var/backups/restore.${PID}.gz\""
+    DATABASE_EXISTS=$(mysql -e 'show databases;' | grep "${MYSQL_DB_NAME}_backup")
+
+    if [[ -z "${DATABASE_EXISTS}" ]]; then
+        lecho "MySQL Database does not exist. Creating database ${MYSQL_DB_NAME}_backup."
+        CREATE_NON_EXIST_DB=$(mysql -e "create database ${MYSQL_DB_NAME}_backup;")
+        if [[ "$?" != 0 ]]; then
+            echo "Database Import unsuccessful. Please check logging, path name and network connectivity."
+            exit 1
+        fi
+    fi
+
+    lecho "restic dump ${RESTORE_SNAPSHOTID} /var/backups/sql/${MYSQL_DB_NAME}.sql.gz --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --verbose=1 | gunzip | mysql ${MYSQL_DB_NAME}_backup"
 
     OLD_IFS="${IFS}"
     IFS=$'\n'
-    RESTORE_OUTPUT=$(duplicity \
-        --file-prefix="${HOSTNAME}." \
-        --name="${HOSTNAME}." \
-        --allow-source-mismatch \
-        --num-retries 100 \
-        ${ENCRYPTION_OPTIONS} \
-        ${CUSTOM_DUPLICITY_OPTIONS} \
-        --tempdir "${TEMPDIR}" \
-        -t ${RESTORE_DATETIME} \
-        --file-to-restore var/backups/sql/${MYSQL_DB_NAME}.sql.gz \
-        ${BACKUP_BACKEND} "/var/backups/restore.${PID}.gz" 2>&1 | grep -v -e Warning -e  pkg_resources -e oslo)
+    RESTORE_OUTPUT=$(restic dump ${RESTORE_SNAPSHOTID} /var/backups/sql/${MYSQL_DB_NAME}.sql.gz \
+        --repo ${BACKUP_BACKEND} \
+        --password-file=/etc/creamcloud-backup/restic-password.conf \
+        --verbose=1 | gunzip | mysql ${MYSQL_DB_NAME}_backup 2>&1 | grep -v -e Warning -e  pkg_resources -e oslo)
         if [[ $? -ne 0 ]]; then
             for line in ${RESTORE_OUTPUT}; do
                 lerror ${line}
             done
-            lerror "Restore FAILED. Please check logging, path name and network connectivity."
+            lerror "Database Import unsuccessful. Please check logging, path name and network connectivity."
             exit 1
         fi
     for line in ${RESTORE_OUTPUT}; do
@@ -203,28 +207,6 @@ if [[ "${RESTORE_TYPE}" == 2 ]]; then
     done
     IFS="${OLD_IFS}"
 
-    gzip -f -d "/var/backups/restore.${PID}.gz"
-    if [[ "$?" != 0 ]]; then
-        echo "Gunzip unsuccessful. Please check logging, path name and network connectivity."
-        exit 1
-    fi
-
-    DATABASE_EXISTS=$(mysql -e 'show databases;' | grep "${MYSQL_DB_NAME}")
-
-    if [[ -z "${DATABASE_EXISTS}" ]]; then
-        lecho "MySQL Database does not exist. Creating db ${MYSQL_DB_NAME}."
-        CREATE_NON_EXIST_DB=$(mysql -e "create database ${MYSQL_DB_NAME};")
-        if [[ "$?" != 0 ]]; then
-            echo "Database Import unsuccessful. Please check logging, path name and network connectivity."
-            exit 1
-        fi
-    fi
-
-    mysql "${MYSQL_DB_NAME}" < "/var/backups/restore.${PID}"
-    if [[ "$?" != 0 ]]; then
-        echo "Database Import unsuccessful. Please check logging, path name and network connectivity."
-        exit 1
-    fi
     lecho "MySQL restore successfull."
 
 fi
