@@ -525,7 +525,7 @@ Choose File/folder, MySQL database or PostgreSQL database.
 
 Either the full path to the file or folder you want to restore, or the name of the database you want to restore.
 
-If you want to restore the folder '/home/user/test' then enter '/home/user/test/'. If you select file, there will follow another question asking if you want to restore the file to its original location or to /var/restore. If you restore the file to its original location it will overwrite *any* files/folders that already exist both there and in the backup with files from the backup. If you restore a folder, it does not alter or remove any files that are in the folder but not in the backup.
+If you want to restore the folder '/home/user/test' then enter '/home/user/test/'. If you select file, there will follow another question asking if you want to restore the file to its original location or to /var/backups/restore. If you restore the file to its original location it will overwrite *any* files/folders that already exist both there and in the backup with files from the backup. If you restore a folder, it does not alter or remove any files that are in the folder but not in the backup.
 
 If the database exists in the backups it will be restored, overwriting any databases with the same name. Make sure MySQL superuser credentials are set in /root/.my.cnf, otherwise the restore will fail. Make sure PostgreSQL system user `postgres` exists, otherwise the restore will fail. Also make sure the database server is running.
 
@@ -533,7 +533,7 @@ If the database exists in the backups it will be restored, overwriting any datab
 
 ![](http://i.imgur.com/oGutcVr.png)
 
-If you want to restore a file/folder this question will ask you if you want to restore it to its original location or restore it to /var/restore/. If you restore the file to its original location it will overwrite *any* files/folders that already exist both there and in the backup with files from the backup. If you restore a folder, it does not alter or remove any files that are in the folder but not in the backup. If you restore to /var/restore you can move the files/folders to another location yourself.
+If you want to restore a file/folder this question will ask you if you want to restore it to its original location or restore it to /var/backups/restore/. If you restore the file to its original location it will overwrite *any* files/folders that already exist both there and in the backup with files from the backup. If you restore a folder, it does not alter or remove any files that are in the folder but not in the backup. If you restore to /var/backups/restore you can move the files/folders to another location yourself.
 
 If you want to restore a database to another database you need to do that manually, by restoring the database dump (from /var/backups/sql) and them importing that to a new database with the respective tools.
 
