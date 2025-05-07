@@ -80,9 +80,11 @@ if [[ "${RESTORE_TYPE}" == 1 ]]; then
 
     if [[ "${RESTORE_PATH_CHOICE}" == 1 ]]; then
         RESTORE_PATH="${ORIGINAL_PATH}"
+        TARGET_PATH="/"
     fi
     if [[ "${RESTORE_PATH_CHOICE}" == 2 ]]; then
         RESTORE_PATH="/var/backups/restore.${PID}/"
+        TARGET_PATH="/var/backups/restore.${PID}/"
     fi
 
     dialog --title "${TITLE} - Restore from Snapshot ID" --inputbox "${DIALOG_7_MESSAGE}" 0 0 2> "/tmp/${PID}.restore-snapshotid"
@@ -100,7 +102,7 @@ if [[ "${RESTORE_TYPE}" == 1 ]]; then
 
     RELATIVE_PATH="${ORIGINAL_PATH:1}"
 
-    lecho "restic restore ${RESTORE_SNAPSHOTID} --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --include=${RELATIVE_PATH} --target=/var/backups/restore.${PID} --verbose=1"
+    lecho "restic restore ${RESTORE_SNAPSHOTID} --repo ${BACKUP_BACKEND} --password-file=/etc/creamcloud-backup/restic-password.conf --include=${RELATIVE_PATH} --target=${TARGET_PATH} --verbose=1"
 
     OLD_IFS="${IFS}"
     IFS=$'\n'
@@ -108,8 +110,8 @@ if [[ "${RESTORE_TYPE}" == 1 ]]; then
         --repo ${BACKUP_BACKEND} \
         --password-file=/etc/creamcloud-backup/restic-password.conf \
 	      --include=${RELATIVE_PATH} \
-        --target=/var/backups/restore.${PID} \
-        --verbose=1 2>&1 | grep -v -e Warning -e  pkg_resources -e oslo)
+        --target=${TARGET_PATH} \
+        --verbose=1 2>&1)
         if [[ $? -ne 0 ]]; then
             for line in ${RESTORE_OUTPUT}; do
                 lerror ${line}
@@ -122,33 +124,7 @@ if [[ "${RESTORE_TYPE}" == 1 ]]; then
     done
     IFS="${OLD_IFS}"
 
-    if [[ "${RESTORE_PATH_CHOICE}" == 1 ]]; then
-        if [[ ! -d "$(dirname ${RESTORE_PATH})" ]]; then
-            mkdir -p "$(dirname ${RESTORE_PATH})"
-        fi
-        lecho "Moving /var/backups/restore.${PID} to ${RESTORE_PATH}"
-        if [[ -f "/var/backups/restore.${PID}" ]]; then
-            TYPEA="File"
-            logger -t "creamcloud-backup" -- "FILE RESTORE TO ORIGINAL PATH"
-            logger -t "creamcloud-backup" -- "rsync -azq \"/var/backups/restore.${PID}\" \"${RESTORE_PATH}\""
-            rsync -azq "/var/backups/restore.${PID}" "${RESTORE_PATH}"
-            if [[ $? -ne 0 ]]; then
-                echo "File Restore unsuccessful. Please check logging, path name and network connectivity."
-                exit 1
-            fi
-        fi
-        if [[ -d "/var/backups/restore.${PID}" ]]; then
-            TYPEA="Folder"
-            logger -t "creamcloud-backup" -- "DIRECTORY RESTORE TO ORIGINAL PATH"
-            logger -t "creamcloud-backup" -- "rsync -azq \"/var/backups//restore.${PID}/\" \"${RESTORE_PATH}\""
-            rsync -azq "/var/backups/restore.${PID}/" "${RESTORE_PATH}"
-            if [[ $? -ne 0 ]]; then
-                echo "Folder Restore unsuccessful. Please check logging, path name and network connectivity."
-                exit 1
-            fi
-        fi
-    fi
-    lecho "${TYPEA} restore successfull."
+    lecho "Restore successful."
 fi
 
 if [[ "${RESTORE_TYPE}" == 2 ]]; then
@@ -182,7 +158,7 @@ if [[ "${RESTORE_TYPE}" == 2 ]]; then
         lecho "MySQL Database does not exist. Creating database ${MYSQL_DB_NAME}_backup."
         CREATE_NON_EXIST_DB=$(mysql -e "create database ${MYSQL_DB_NAME}_backup;")
         if [[ "$?" != 0 ]]; then
-            echo "Database Import unsuccessful. Please check logging, path name and network connectivity."
+            echo "Creating database unsuccessful. Please check logging, path name and network connectivity."
             exit 1
         fi
     fi
@@ -194,12 +170,12 @@ if [[ "${RESTORE_TYPE}" == 2 ]]; then
     RESTORE_OUTPUT=$(restic dump ${RESTORE_SNAPSHOTID} /var/backups/sql/${MYSQL_DB_NAME}.sql.gz \
         --repo ${BACKUP_BACKEND} \
         --password-file=/etc/creamcloud-backup/restic-password.conf \
-        --verbose=1 | gunzip | mysql ${MYSQL_DB_NAME}_backup 2>&1 | grep -v -e Warning -e  pkg_resources -e oslo)
+        --verbose=1 | gunzip | mysql ${MYSQL_DB_NAME}_backup 2>&1)
         if [[ $? -ne 0 ]]; then
             for line in ${RESTORE_OUTPUT}; do
                 lerror ${line}
             done
-            lerror "Database Import unsuccessful. Please check logging, path name and network connectivity."
+            lerror "Database import unsuccessful. Please check logging, path name and network connectivity."
             exit 1
         fi
     for line in ${RESTORE_OUTPUT}; do
