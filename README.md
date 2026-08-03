@@ -49,7 +49,7 @@ Run the installer:
 `install.sh` installs the required system packages, Composer and the PHP dependencies (`composer install`), then hands off to the application's own `install` command (`bin/creamcloud-backup install`), which:
 
 - asks for your OpenStack Object Store username, password, project ID, region and domain names (your password is not echoed back), and stores them in `/etc/creamcloud-backup/backup.conf`;
-- generates a restic repository password in `/etc/creamcloud-backup/restic-password.conf`;
+- asks for a restic repository password (leave empty to generate one), and stores it in `/etc/creamcloud-backup/restic-password.conf`; pass `--restic-password` to set it non-interactively;
 - initializes the restic repository;
 - symlinks `bin/creamcloud-backup` to `/usr/local/bin/creamcloud-backup`;
 - installs a daily cron job at `/etc/cron.d/creamcloud-backup` that runs a backup at a randomized time, prunes old snapshots once a day, and updates Cream Cloud Backup once a month.
@@ -103,7 +103,7 @@ Everything is run through the `creamcloud-backup` command, installed as `/usr/lo
 | `backup:init` | Initialize the restic repository, if it has not been already. |
 | `backup:run` | Run a backup: dispatches pre/post-backup events (status upload, lock check, MySQL dump), runs `restic backup`, then `restic forget` to apply the retention policy. |
 | `backup:cleanup` | Remove stale locks and prune old data (`restic unlock --remove-all` followed by `restic prune`). |
-| `backup:list [time]` | List available snapshots, optionally restricted to those newer than `time` (e.g. `2d` or `2024-01-01`, passed to `restic snapshots --time`). |
+| `backup:list [time]` | List available snapshots as a table, optionally restricted to those newer than `time` (e.g. `2d` for 2 days ago, or `2024-01-01`). |
 | `backup:stats` | Show configuration, Swift storage usage and the snapshot list. |
 | `backup:verify` | Check the integrity of the repository (`restic check`). |
 | `backup:restore` | Interactively restore a file, folder or MySQL database. |

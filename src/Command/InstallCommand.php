@@ -9,6 +9,7 @@ use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Filesystem\Filesystem;
@@ -43,14 +44,18 @@ final class InstallCommand extends Command
             ->setHelp(
                 'Safe to re-run: an existing local config, restic password or cron job is left alone.'."\n\n"
                 .'For unattended installs, pass all six arguments:'."\n\n"
-                .'  creamcloud-backup install \'user@example.org\' \'P@ssw0rd\' \'project-id\' \'NL\' \'transip\' \'transip\''
+                .'  creamcloud-backup install \'user@example.org\' \'P@ssw0rd\' \'project-id\' \'NL\' \'transip\' \'transip\''."\n\n"
+                .'The restic repository password is asked for interactively (leave empty to'."\n"
+                .'generate one); pass --restic-password to set it non-interactively, e.g. for'."\n"
+                .'unattended installs or when run with --no-interaction.'
             )
             ->addArgument('username', InputArgument::OPTIONAL, 'OpenStack Object Store username')
             ->addArgument('password', InputArgument::OPTIONAL, 'OpenStack Object Store password')
             ->addArgument('project-id', InputArgument::OPTIONAL, 'OpenStack project ID')
             ->addArgument('region', InputArgument::OPTIONAL, 'OpenStack region')
             ->addArgument('user-domain-name', InputArgument::OPTIONAL, 'OpenStack user domain name')
-            ->addArgument('project-domain-name', InputArgument::OPTIONAL, 'OpenStack project domain name');
+            ->addArgument('project-domain-name', InputArgument::OPTIONAL, 'OpenStack project domain name')
+            ->addOption('restic-password', null, InputOption::VALUE_REQUIRED, 'Restic repository password (generated automatically if not given)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -71,7 +76,7 @@ final class InstallCommand extends Command
             return Command::FAILURE;
         }
 
-        $this->ensureResticPassword($filesystem);
+        $this->ensureResticPassword($input, $output, $filesystem);
         $this->linkBinary($filesystem);
 
         $application = $this->getApplication();
@@ -248,16 +253,29 @@ final class InstallCommand extends Command
         return \is_string($name) ? $name : null;
     }
 
-    private function ensureResticPassword(Filesystem $filesystem): void
+    private function ensureResticPassword(InputInterface $input, OutputInterface $output, Filesystem $filesystem): void
     {
         if ($filesystem->exists($this->resticPasswordFile)) {
             return;
         }
 
-        $filesystem->mkdir(\dirname($this->resticPasswordFile), 0700);
+        $password = $input->getOption('restic-password');
 
-        $this->logger->info(sprintf('Generating a restic repository password in %s.', $this->resticPasswordFile));
-        $filesystem->dumpFile($this->resticPasswordFile, base64_encode(random_bytes(48))."\n");
+        if (empty($password) && $input->isInteractive()) {
+            $question = new Question('Restic repository password (leave empty to generate one, not shown): ');
+            $question->setHidden(true);
+            $password = (new QuestionHelper())->ask($input, $output, $question);
+        }
+
+        if (empty($password)) {
+            $password = base64_encode(random_bytes(48));
+            $this->logger->info(sprintf('Generating a restic repository password in %s.', $this->resticPasswordFile));
+        } else {
+            $this->logger->info(sprintf('Using the provided restic repository password, storing it in %s.', $this->resticPasswordFile));
+        }
+
+        $filesystem->mkdir(\dirname($this->resticPasswordFile), 0700);
+        $filesystem->dumpFile($this->resticPasswordFile, $password."\n");
         $filesystem->chmod($this->resticPasswordFile, 0600);
     }
 
