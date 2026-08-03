@@ -7,7 +7,6 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -47,19 +46,21 @@ final class InstallCommand extends Command
                 .'hostname, ...) and the cron job instead - the restic password is never'."\n"
                 .'overwritten, even with --reinstall, since that would lock you out of your'."\n"
                 .'existing backups.'."\n\n"
-                .'For unattended installs, pass all six arguments:'."\n\n"
-                .'  creamcloud-backup install \'user@example.org\' \'P@ssw0rd\' \'project-id\' \'NL\' \'transip\' \'transip\''."\n\n"
+                .'For unattended installs, pass all six OpenStack options:'."\n\n"
+                .'  creamcloud-backup install --username=\'user@example.org\' --password=\'P@ssw0rd\' \\'."\n"
+                .'    --project-id=\'project-id\' --region=\'NL\' --user-domain-name=\'transip\' \\'."\n"
+                .'    --project-domain-name=\'transip\''."\n\n"
                 .'The hostname and restic repository password are asked for interactively'."\n"
                 .'(leave the password empty to generate one); pass --hostname / --restic-password'."\n"
                 .'to set them non-interactively, e.g. for unattended installs or when run with'."\n"
                 .'--no-interaction.'
             )
-            ->addArgument('username', InputArgument::OPTIONAL, 'OpenStack Object Store username')
-            ->addArgument('password', InputArgument::OPTIONAL, 'OpenStack Object Store password')
-            ->addArgument('project-id', InputArgument::OPTIONAL, 'OpenStack project ID')
-            ->addArgument('region', InputArgument::OPTIONAL, 'OpenStack region')
-            ->addArgument('user-domain-name', InputArgument::OPTIONAL, 'OpenStack user domain name')
-            ->addArgument('project-domain-name', InputArgument::OPTIONAL, 'OpenStack project domain name')
+            ->addOption('username', null, InputOption::VALUE_REQUIRED, 'OpenStack Object Store username')
+            ->addOption('password', null, InputOption::VALUE_REQUIRED, 'OpenStack Object Store password')
+            ->addOption('project-id', null, InputOption::VALUE_REQUIRED, 'OpenStack project ID')
+            ->addOption('region', null, InputOption::VALUE_REQUIRED, 'OpenStack region')
+            ->addOption('user-domain-name', null, InputOption::VALUE_REQUIRED, 'OpenStack user domain name')
+            ->addOption('project-domain-name', null, InputOption::VALUE_REQUIRED, 'OpenStack project domain name')
             ->addOption('hostname', null, InputOption::VALUE_REQUIRED, 'Hostname for this server (used as the restic/Swift container identity)')
             ->addOption('restic-password', null, InputOption::VALUE_REQUIRED, 'Restic repository password (generated automatically if not given)')
             ->addOption('reinstall', null, InputOption::VALUE_NONE, 'Overwrite the local config file and cron job if they already exist');
@@ -117,12 +118,12 @@ final class InstallCommand extends Command
 
     private function writeLocalConfig(InputInterface $input, OutputInterface $output, Filesystem $filesystem): bool
     {
-        $username = $input->getArgument('username');
-        $password = $input->getArgument('password');
-        $projectId = $input->getArgument('project-id');
-        $region = $input->getArgument('region');
-        $userDomainName = $input->getArgument('user-domain-name');
-        $projectDomainName = $input->getArgument('project-domain-name');
+        $username = $input->getOption('username');
+        $password = $input->getOption('password');
+        $projectId = $input->getOption('project-id');
+        $region = $input->getOption('region');
+        $userDomainName = $input->getOption('user-domain-name');
+        $projectDomainName = $input->getOption('project-domain-name');
 
         $unattended = null !== $username && null !== $password && null !== $projectId
             && null !== $region && null !== $userDomainName && null !== $projectDomainName;

@@ -56,11 +56,12 @@ Run the installer:
 
 All of the above is safe to re-run: existing configuration, the restic password and the cron job are left alone if they already exist. Pass `--reinstall` to overwrite the local configuration (hostname, OpenStack credentials, ...) and the cron job - the restic password is never overwritten, even with `--reinstall`, since that would lock you out of your existing backups.
 
-To install unattended, pass the OpenStack credentials as arguments:
+To install unattended, pass the OpenStack credentials as options:
 
-    bash install.sh 'user@example.org' 'P@ssw0rd' 'project-id' 'NL' 'transip' 'transip'
+    bash install.sh --username='user@example.org' --password='P@ssw0rd' --project-id='project-id' \
+        --region='NL' --user-domain-name='transip' --project-domain-name='transip'
 
-(this is equivalent to running `creamcloud-backup install 'user@example.org' 'P@ssw0rd' 'project-id' 'NL' 'transip' 'transip'` directly, e.g. to reconfigure a server without re-running the system package installation.) Add `--hostname=<hostname>` to also set the hostname non-interactively.
+(this is equivalent to running `creamcloud-backup install` with the same options directly, e.g. to reconfigure a server without re-running the system package installation.) Add `--hostname=<hostname>` to also set the hostname non-interactively, and see `creamcloud-backup install --help` for the full list of options (including `--restic-password` and `--reinstall`).
 
 ## Configuration <a id="config"></a>
 

@@ -48,11 +48,18 @@ fi
 usage() {
     cat <<USAGE
 Usage:
-  Interactive install (asks for OpenStack Object Store credentials):
+  Interactive install (asks for OpenStack Object Store credentials, hostname
+  and restic repository password):
     ./install.sh
 
   Unattended install:
-    ./install.sh USERNAME PASSWORD PROJECT_ID REGION USER_DOMAIN_NAME PROJECT_DOMAIN_NAME
+    ./install.sh --username=USERNAME --password=PASSWORD --project-id=PROJECT_ID \\
+        --region=REGION --user-domain-name=USER_DOMAIN_NAME \\
+        --project-domain-name=PROJECT_DOMAIN_NAME \\
+        --hostname=HOSTNAME --restic-password=RESTIC_PASSWORD
+
+  Any other option accepted by "creamcloud-backup install" (e.g. --reinstall)
+  can be passed here too; see "creamcloud-backup install --help".
 USAGE
 }
 
