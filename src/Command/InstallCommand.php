@@ -156,14 +156,14 @@ final class InstallCommand extends Command
 
             CONF,
             (new \DateTimeImmutable())->format(DATE_ATOM),
-            $this->detectHostname(),
-            $username,
-            $password,
-            $projectName,
-            $userDomainName,
-            $projectDomainName,
-            $region,
-            self::AUTH_URL,
+            $this->quote($this->detectHostname()),
+            $this->quote($username),
+            $this->quote($password),
+            $this->quote($projectName),
+            $this->quote($userDomainName),
+            $this->quote($projectDomainName),
+            $this->quote($region),
+            $this->quote(self::AUTH_URL),
         );
 
         $filesystem->mkdir(\dirname($this->localConfigFile), 0700);
@@ -173,6 +173,15 @@ final class InstallCommand extends Command
         $this->logger->info(sprintf('Written server configuration to %s.', $this->localConfigFile));
 
         return true;
+    }
+
+    /**
+     * Single-quotes a value for use in a Dotenv file, escaping any embedded
+     * single quote the same way a shell would ('it'\''s' -> "it's").
+     */
+    private function quote(string $value): string
+    {
+        return "'".str_replace("'", "'\\''", $value)."'";
     }
 
     private function detectHostname(): string
@@ -226,6 +235,8 @@ final class InstallCommand extends Command
         ]);
         $response = curl_exec($ch);
         curl_close($ch);
+
+
 
         if (false === $response || !\is_string($response)) {
             return null;

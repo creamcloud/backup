@@ -145,8 +145,8 @@ This starts an interactive wizard:
 
 To receive an email when a backup fails, set in `/etc/creamcloud-backup/backup.conf`:
 
-    MAILER_DSN=smtp://user:pass@smtp.example.com:587
-    NOTIFICATION_EMAILS=ops@example.com,oncall@example.com
+    MAILER_DSN='smtp://user:pass@smtp.example.com:587'
+    NOTIFICATION_EMAILS='ops@example.com,oncall@example.com'
 
 See the [Symfony Mailer documentation](https://symfony.com/doc/current/mailer.html#using-built-in-transports) for supported DSN formats (SMTP, Sendmail, SES, etc.).
 

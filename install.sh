@@ -150,41 +150,11 @@ if ! command -v composer >/dev/null 2>&1; then
 fi
 
 # ------------------------------------------------------------------------------
-# CSF firewall: allow outbound access to the OpenStack Object Store
-# ------------------------------------------------------------------------------
-
-if [[ -f "/etc/csf/csf.fignore" ]]; then
-    if ! grep -q 'creamcloud-backup' /etc/csf/csf.fignore; then
-        lecho "Adding exceptions for lfd."
-        for path in "${PROJECT_DIR}/var/*" "${CONFIG_DIR}/*"; do
-            echo "$path" >> /etc/csf/csf.fignore
-        done
-        service lfd restart > /dev/null 2>&1
-    fi
-
-    IP_LIST=(
-        "31.3.100.117"
-        "31.3.100.118"
-        "31.3.100.121/29"
-    )
-
-    for IP in "${IP_LIST[@]}"; do
-        if ! grep -q "$IP" /etc/csf/csf.allow; then
-            lecho "Adding exceptions for csf: $IP"
-            csf -a "tcp|out|d=443|d=${IP}" "ObjectStore (${IP})" > /dev/null 2>&1
-        fi
-    done
-
-    service csf restart > /dev/null 2>&1
-    csf -r > /dev/null 2>&1
-fi
-
-# ------------------------------------------------------------------------------
 # Application dependencies
 # ------------------------------------------------------------------------------
 
 lecho "Installing PHP dependencies in ${PROJECT_DIR}."
-composer install --no-dev --optimize-autoloader --working-dir="${PROJECT_DIR}"
+composer install --no-interaction --no-dev --optimize-autoloader --working-dir="${PROJECT_DIR}"
 if [[ $? -ne 0 ]]; then
     lerror "composer install failed."
     exit 1
