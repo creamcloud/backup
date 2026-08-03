@@ -48,19 +48,19 @@ Run the installer:
 
 `install.sh` installs the required system packages, Composer and the PHP dependencies (`composer install`), then hands off to the application's own `install` command (`bin/creamcloud-backup install`), which:
 
-- asks for your OpenStack Object Store username, password, project ID, region and domain names (your password is not echoed back), and stores them in `/etc/creamcloud-backup/backup.conf`;
+- asks for this server's hostname (defaults to the machine's own hostname) and your OpenStack Object Store username, password, project ID, region and domain names (your password is not echoed back), and stores them - together with `SWIFT_CONTAINER`/`RESTIC_REPOSITORY` set to this server's hostname, so each server gets its own isolated Swift container - in `/etc/creamcloud-backup/backup.conf`;
 - asks for a restic repository password (leave empty to generate one), and stores it in `/etc/creamcloud-backup/restic-password.conf`; pass `--restic-password` to set it non-interactively;
 - initializes the restic repository;
 - symlinks `bin/creamcloud-backup` to `/usr/local/bin/creamcloud-backup`;
 - installs a daily cron job at `/etc/cron.d/creamcloud-backup` that runs a backup at a randomized time, prunes old snapshots once a day, and updates Cream Cloud Backup once a month.
 
-All of the above is safe to re-run: existing configuration, the restic password and the cron job are left alone if they already exist.
+All of the above is safe to re-run: existing configuration, the restic password and the cron job are left alone if they already exist. Pass `--reinstall` to overwrite the local configuration (hostname, OpenStack credentials, ...) and the cron job - the restic password is never overwritten, even with `--reinstall`, since that would lock you out of your existing backups.
 
 To install unattended, pass the OpenStack credentials as arguments:
 
     bash install.sh 'user@example.org' 'P@ssw0rd' 'project-id' 'NL' 'transip' 'transip'
 
-(this is equivalent to running `creamcloud-backup install 'user@example.org' 'P@ssw0rd' 'project-id' 'NL' 'transip' 'transip'` directly, e.g. to reconfigure a server without re-running the system package installation.)
+(this is equivalent to running `creamcloud-backup install 'user@example.org' 'P@ssw0rd' 'project-id' 'NL' 'transip' 'transip'` directly, e.g. to reconfigure a server without re-running the system package installation.) Add `--hostname=<hostname>` to also set the hostname non-interactively.
 
 ## Configuration <a id="config"></a>
 
@@ -77,11 +77,11 @@ The most important variables (see `etc/backup.conf` for the full, documented lis
 | `KEEP_DAILY` | Number of daily snapshots to keep. Default `7`. |
 | `KEEP_WEEKLY` | Number of weekly snapshots to keep. Default `2`. |
 | `BACKUP_PATH` | Path to back up. Default `/`. |
-| `RESTIC_REPOSITORY` | Restic repository URL, e.g. `swift:creamcloud-backup:/`. |
+| `RESTIC_REPOSITORY` | Restic repository URL, e.g. `swift:creamcloud-backup:/`. Set by the installer to `swift:<hostname>:/`, one container per server. |
 | `RESTIC_PASSWORD_FILE` | Path to the file containing the restic repository password. |
 | `LOCAL_CONFIG_FILE` | Path to the per-server configuration file (see above). |
 | `EXCLUDE_FILE` | Path to a restic exclude file. Defaults to `etc/exclude.conf`. |
-| `SWIFT_CONTAINER` | Swift container used for status objects and storage statistics. |
+| `SWIFT_CONTAINER` | Swift container used for status objects and storage statistics. Set by the installer to this server's hostname, matching `RESTIC_REPOSITORY`. |
 | `OS_USERNAME`, `OS_PASSWORD`, `OS_PROJECT_NAME`, `OS_USER_DOMAIN_NAME`, `OS_PROJECT_DOMAIN_NAME`, `OS_REGION_NAME`, `OS_AUTH_URL`, `OS_IDENTITY_API_VERSION` | OpenStack authentication for the Swift backend. |
 | `MAILER_DSN` | Symfony Mailer DSN used for failure notifications. Defaults to `null://null` (do nothing). |
 | `NOTIFICATION_EMAILS` | Comma separated list of addresses to email when a backup fails. |
@@ -99,7 +99,7 @@ Everything is run through the `creamcloud-backup` command, installed as `/usr/lo
 
 | Command | Description |
 | --- | --- |
-| `install` | Configure this server: OpenStack credentials, restic password, `creamcloud-backup` command and cron job. Run by `install.sh`, or directly to reconfigure a server. |
+| `install [--reinstall]` | Configure this server: hostname, OpenStack credentials, restic password, `creamcloud-backup` command and cron job. Run by `install.sh`, or directly to reconfigure a server. `--reinstall` overwrites the local config and cron job (not the restic password). |
 | `backup:init` | Initialize the restic repository, if it has not been already. |
 | `backup:run` | Run a backup: dispatches pre/post-backup events (status upload, lock check, MySQL dump), runs `restic backup`, then `restic forget` to apply the retention policy. |
 | `backup:cleanup` | Remove stale locks and prune old data (`restic unlock --remove-all` followed by `restic prune`). |
