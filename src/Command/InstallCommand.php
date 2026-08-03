@@ -6,12 +6,12 @@ use App\Service\ActivityLogger;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\Process;
 
 /**
  * Configures this server, replacing everything install.sh used to do past
@@ -93,15 +93,11 @@ final class InstallCommand extends Command
         $this->ensureResticPassword($input, $output, $filesystem);
         $this->linkBinary($filesystem);
 
-        $application = $this->getApplication();
-        if (null === $application) {
-            $this->logger->error('Could not run "backup:init": no console application available.');
-
-            return Command::FAILURE;
-        }
-
-        $initCommand = $application->find('backup:init');
-        if (Command::SUCCESS !== $initCommand->run(new ArrayInput([]), $output)) {
+        // Run as a fresh process rather than in-process (Application::find()
+        // ->run()): the config just written above is only picked up by a new
+        // process re-reading it at boot, since this process's container was
+        // already built (with the old/default values) before we wrote it.
+        if (!$this->runBackupInit($output)) {
             return Command::FAILURE;
         }
 
@@ -301,6 +297,23 @@ final class InstallCommand extends Command
         $filesystem->mkdir(\dirname($this->resticPasswordFile), 0700);
         $filesystem->dumpFile($this->resticPasswordFile, $password."\n");
         $filesystem->chmod($this->resticPasswordFile, 0600);
+    }
+
+    private function runBackupInit(OutputInterface $output): bool
+    {
+        $process = new Process([$this->projectDir.'/bin/creamcloud-backup', 'backup:init']);
+        $process->setTimeout(null);
+        $process->run(function (string $type, string $buffer) use ($output): void {
+            $output->write($buffer);
+        });
+
+        if (!$process->isSuccessful()) {
+            $this->logger->error('"backup:init" failed.');
+
+            return false;
+        }
+
+        return true;
     }
 
     private function linkBinary(Filesystem $filesystem): void
