@@ -105,6 +105,7 @@ Everything is run through the `creamcloud-backup` command, installed as `/usr/lo
 | `backup:run` | Run a backup: dispatches pre/post-backup events (status upload, lock check, MySQL dump), runs `restic backup`, then `restic forget` to apply the retention policy. |
 | `backup:cleanup` | Remove stale locks and prune old data (`restic unlock --remove-all` followed by `restic prune`). |
 | `backup:list [time]` | List available snapshots as a table, optionally restricted to those newer than `time` (e.g. `2d` for 2 days ago, or `2024-01-01`). |
+| `backup:delete <snapshot-id>` / `backup:delete --all` | Delete a snapshot, or every snapshot with `--all`. Asks for confirmation unless `--force`/`-f` is given. Cannot be undone. |
 | `backup:stats` | Show configuration, Swift storage usage and the snapshot list. |
 | `backup:verify` | Check the integrity of the repository (`restic check`). |
 | `backup:restore` | Interactively restore a file, folder or MySQL database. |

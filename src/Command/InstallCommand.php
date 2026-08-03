@@ -132,10 +132,10 @@ final class InstallCommand extends Command
             $helper = new QuestionHelper();
 
             $username = $helper->ask($input, $output, new Question('OpenStack Object Store username (user@example.org): '));
-            $passwordQuestion = new Question('OpenStack Object Store password (not shown): ');
+            $passwordQuestion = new Question('OpenStack Object Store password: ');
             $passwordQuestion->setHidden(true);
             $password = $helper->ask($input, $output, $passwordQuestion);
-            $projectId = $helper->ask($input, $output, new Question('OpenStack project ID: '));
+            $projectId = $helper->ask($input, $output, new Question('OpenStack Project ID: '));
             $userDomainName = $helper->ask($input, $output, new Question('OpenStack user domain name [transip]: ', 'transip'));
             $projectDomainName = $helper->ask($input, $output, new Question('OpenStack project domain name [transip]: ', 'transip'));
             $region = $helper->ask($input, $output, new Question('OpenStack region [NL]: ', 'NL'));
@@ -143,6 +143,13 @@ final class InstallCommand extends Command
 
         if (empty($username) || empty($password) || empty($projectId) || empty($region) || empty($userDomainName) || empty($projectDomainName)) {
             $this->logger->error('Need a username, password, project ID, region and domain names.');
+
+            return false;
+        }
+
+        $hostname = $this->askHostname($input, $output);
+        if (empty($hostname)) {
+            $this->logger->error('Need a hostname.');
 
             return false;
         }
@@ -159,12 +166,6 @@ final class InstallCommand extends Command
 
         $this->logger->info(sprintf('Authenticated as project "%s".', $projectName));
 
-        $hostname = $this->askHostname($input, $output);
-        if (empty($hostname)) {
-            $this->logger->error('Need a hostname.');
-
-            return false;
-        }
 
         $contents = sprintf(
             <<<CONF

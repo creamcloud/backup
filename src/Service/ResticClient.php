@@ -146,6 +146,23 @@ final class ResticClient
         return \is_array($snapshots) ? $snapshots : null;
     }
 
+    /**
+     * Deletes the given snapshots and immediately reclaims their storage
+     * ("restic forget <id>... --prune"), rather than just marking them as
+     * forgotten and leaving the data for a later "restic prune".
+     *
+     * @param string[] $snapshotIds
+     */
+    public function deleteSnapshots(array $snapshotIds): ResticResult
+    {
+        return $this->runLogged($this->baseProcess([
+            'forget', ...$snapshotIds,
+            '--prune',
+            '--cleanup-cache',
+            '--verbose=1',
+        ]));
+    }
+
     public function restore(string $snapshotId, string $include, string $target): ResticResult
     {
         return $this->runLogged($this->baseProcess([
