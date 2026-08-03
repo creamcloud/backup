@@ -39,8 +39,8 @@ You need to run the installer as the `root` user.
 
 Clone the repository:
 
-    git clone https://github.com/creamcloud/backup.git /opt/creamcloud-backup
-    cd /opt/creamcloud-backup
+    git clone https://github.com/creamcloud/backup.git /usr/local/creamcloud-backup
+    cd /usr/local/creamcloud-backup
 
 Run the installer:
 
