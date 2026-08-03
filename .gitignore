@@ -1,1 +1,7 @@
+###> Cream Cloud Backup ###
+/var/
+/vendor/
+###< Cream Cloud Backup ###
+
 .fuse*
+.DS_Store

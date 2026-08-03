@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+use App\Console\Application;
+
+if (!is_file(dirname(__DIR__).'/vendor/autoload.php')) {
+    fwrite(STDERR, "Dependencies are missing. Run \"composer install\" first.\n");
+    exit(1);
+}
+
+$container = require dirname(__DIR__).'/config/container.php';
+
+/** @var Application $application */
+$application = $container->get(Application::class);
+
+exit($application->run());

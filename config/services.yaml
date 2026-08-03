@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=./vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+parameters:
+    app.project_dir: '%kernel.project_dir%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+        bind:
+            $version: '%app.version%'
+            $hostname: '%app.hostname%'
+            $keepDaily: '%app.keep_daily%'
+            $keepWeekly: '%app.keep_weekly%'
+            $tempDir: '%app.tempdir%'
+            $backupPath: '%app.backup_path%'
+            $resticRepository: '%app.restic_repository%'
+            $resticPasswordFile: '%app.restic_password_file%'
+            $localConfigFile: '%app.local_config_file%'
+            $excludeFile: '%app.exclude_file%'
+            $swiftContainer: '%app.swift_container%'
+            $osUsername: '%app.os_username%'
+            $osPassword: '%app.os_password%'
+            $osProjectName: '%app.os_project_name%'
+            $osUserDomainName: '%app.os_user_domain_name%'
+            $osProjectDomainName: '%app.os_project_domain_name%'
+            $osRegionName: '%app.os_region_name%'
+            $osAuthUrl: '%app.os_auth_url%'
+            $osIdentityApiVersion: '%app.os_identity_api_version%'
+            $notificationEmails: '%app.notification_emails%'
+            $mailFrom: '%app.mail_from%'
+            $projectDir: '%app.project_dir%'
+            $varDir: '%app.var_dir%'
+            $sqlBackupDir: '%app.sql_backup_dir%'
+            $restoreDir: '%app.restore_dir%'
+            $binLink: '%app.bin_link%'
+            $cronFile: '%app.cron_file%'
+
+    _instanceof:
+        Symfony\Component\EventDispatcher\EventSubscriberInterface:
+            tags: ['kernel.event_subscriber']
+        Symfony\Component\Console\Command\Command:
+            tags: ['app.command']
+
+    event_dispatcher:
+        class: Symfony\Component\EventDispatcher\EventDispatcher
+
+    Symfony\Component\EventDispatcher\EventDispatcherInterface: '@event_dispatcher'
+
+    Symfony\Component\Mailer\Transport\TransportInterface:
+        factory: ['Symfony\Component\Mailer\Transport', 'fromDsn']
+        arguments:
+            - '%app.mailer_dsn%'
+
+    Symfony\Component\Mailer\MailerInterface:
+        class: Symfony\Component\Mailer\Mailer
+
+    App\:
+        resource: '../src/'
+
+    App\Console\Application:
+        public: true
+        arguments:
+            $commands: !tagged_iterator app.command

@@ -1,0 +1,11 @@
+# Application configuration that does not depend on environment variables.
+# Values derived from the environment are set in config/container.php and
+# bound to service constructor arguments via the "_defaults.bind" map in
+# config/services.yaml.
+parameters:
+    app.version: '3.0.0'
+    app.var_dir: '%kernel.project_dir%/var'
+    app.sql_backup_dir: '/var/backups/sql'
+    app.restore_dir: '/var/backups/restore'
+    app.bin_link: '/usr/local/bin/creamcloud-backup'
+    app.cron_file: '/etc/cron.d/creamcloud-backup'

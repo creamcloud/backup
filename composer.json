@@ -1,0 +1,32 @@
+{
+    "name": "creamcloud/backup",
+    "description": "Cream Cloud Backup - Restic wrapper to back up to OpenStack Object Store",
+    "type": "project",
+    "license": "GPL-2.0-or-later",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.2",
+        "symfony/console": "^7.4",
+        "symfony/dotenv": "^7.4",
+        "symfony/yaml": "^7.4",
+        "symfony/config": "^7.4",
+        "symfony/dependency-injection": "^7.4",
+        "symfony/event-dispatcher": "^7.4",
+        "symfony/process": "^7.4",
+        "symfony/mailer": "^7.4",
+        "symfony/filesystem": "^7.4"
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "bin": [
+        "bin/creamcloud-backup"
+    ]
+}
