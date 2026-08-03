@@ -113,15 +113,37 @@ final class ResticClient
         return $this->runLogged($this->baseProcess(['check', '--cleanup-cache', '--verbose=1']));
     }
 
-    public function snapshots(?string $time = null): ResticResult
+    public function snapshots(): ResticResult
     {
-        $arguments = ['snapshots', '--cleanup-cache', '--verbose=1'];
-        if (null !== $time) {
-            $arguments[] = '--time';
-            $arguments[] = $time;
+        return $this->runLogged($this->baseProcess(['snapshots', '--cleanup-cache', '--verbose=1']));
+    }
+
+    /**
+     * Same as snapshots(), but returns the structured "restic snapshots
+     * --json" data (for rendering as a table) instead of logging raw
+     * output. Returns null on failure. Unlike snapshots(), there is no
+     * $time filter here: "restic snapshots" has no such flag, callers
+     * should filter the returned array themselves (each entry has a
+     * "time" field).
+     *
+     * @return array<int, array{short_id: string, time: string, hostname?: string, paths?: string[]}>|null
+     */
+    public function snapshotsJson(): ?array
+    {
+        $process = $this->baseProcess(['snapshots', '--cleanup-cache', '--json']);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            foreach ($this->splitLines($process->getErrorOutput()) as $line) {
+                $this->logger->error($line);
+            }
+
+            return null;
         }
 
-        return $this->runLogged($this->baseProcess($arguments));
+        $snapshots = json_decode($process->getOutput(), true);
+
+        return \is_array($snapshots) ? $snapshots : null;
     }
 
     public function restore(string $snapshotId, string $include, string $target): ResticResult
