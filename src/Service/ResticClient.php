@@ -68,7 +68,7 @@ final class ResticClient
             '--exclude-caches',
             '--cleanup-cache',
             '--verbose=1',
-        ]));
+        ]), 'backup: ', [0, 3]);
     }
 
     public function forget(int $keepDaily, int $keepWeekly): ResticResult
@@ -89,7 +89,7 @@ final class ResticClient
             $arguments[] = '--remove-all';
         }
 
-        return $this->runLogged($this->baseProcess($arguments));
+        return $this->runLogged($this->baseProcess($arguments), 'unlock: ');
     }
 
     public function listLocks(): array
@@ -235,9 +235,16 @@ final class ResticClient
         return $process;
     }
 
-    private function runLogged(Process $process, string $logPrefix = ''): ResticResult
+    /**
+     * @param int[] $acceptableExitCodes exit codes that count as success, in
+     *                                    addition to restic's own notion of
+     *                                    success (exit code 0)
+     */
+    private function runLogged(Process $process, string $logPrefix = '', array $acceptableExitCodes = [0]): ResticResult
     {
         $process->run();
+
+        $success = $process->isSuccessful() || in_array($process->getExitCode(), $acceptableExitCodes, true);
 
         $lines = [
             ...$this->splitLines($process->getOutput()),
@@ -252,7 +259,7 @@ final class ResticClient
             }
         }
 
-        return new ResticResult($process->isSuccessful(), $lines);
+        return new ResticResult($success, $lines);
     }
 
     /**
