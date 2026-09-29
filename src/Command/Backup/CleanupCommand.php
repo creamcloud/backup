@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'backup:cleanup',
-    description: 'Remove stale locks and prune old data.',
+    description: 'Remove stale locks, repair the index and prune old data.',
 )]
 final class CleanupCommand extends Command
 {
@@ -27,6 +27,13 @@ final class CleanupCommand extends Command
         $this->logger->setOutput($output);
 
         $unlock = $this->restic->unlock(removeAll: true);
+
+        // Pruning relies on the index being correct, so don't prune on top
+        // of an index that could not be repaired.
+        if (!$this->restic->repairIndex()->success) {
+            return Command::FAILURE;
+        }
+
         $prune = $this->restic->prune();
 
         return $unlock->success && $prune->success ? Command::SUCCESS : Command::FAILURE;

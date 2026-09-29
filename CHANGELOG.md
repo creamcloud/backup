@@ -3,6 +3,7 @@
 ## 3.1.0
 
 - The `self-update` command now also updates restic (`restic self-update`).
+- The `backup:cleanup` command now also repairs the indexes. 
 
 ## 3.0.1
 

@@ -103,6 +103,15 @@ final class ResticClient
         return array_values(array_filter(array_map('trim', explode("\n", $process->getOutput()))));
     }
 
+    /**
+     * Rebuilds the repository index by reading every pack file, rather than
+     * trusting the existing index files.
+     */
+    public function repairIndex(): ResticResult
+    {
+        return $this->runLogged($this->baseProcess(['repair', 'index', '--read-all-packs', '--cleanup-cache', '--verbose=1']), 'repair: ');
+    }
+
     public function prune(): ResticResult
     {
         return $this->runLogged($this->baseProcess(['prune', '--cleanup-cache', '--verbose=1']));

@@ -350,7 +350,7 @@ final class InstallCommand extends Command
             # Daily backup at a randomized time between 00:00 and 06:59.
             %d %d * * * root %s backup:run
 
-            # Daily cleanup: remove stale locks and prune old snapshots.
+            # Daily cleanup: remove stale locks, repair the index and prune old snapshots.
             0 0 * * * root %s backup:cleanup
 
             # Self-update on the first day of the month.
