@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'backup:verify',
-    description: 'Check the integrity of the repository ("restic check").',
+    description: 'Check the integrity of the repository.',
 )]
 final class VerifyCommand extends Command
 {

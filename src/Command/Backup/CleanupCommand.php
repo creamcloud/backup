@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'backup:cleanup',
-    description: 'Remove stale locks and prune old data ("restic unlock --remove-all" + "restic prune").',
+    description: 'Remove stale locks and prune old data.',
 )]
 final class CleanupCommand extends Command
 {

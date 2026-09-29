@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.0
+
+- The `self-update` command now also updates restic (`restic self-update`).
+
 ## 3.0.1
 
 - Consider the backup also successful when Restic exits with status 3 (some source files could not be read, e.g. because they vanished mid-scan) rather than only status 0, since restic still saves a snapshot in that case.

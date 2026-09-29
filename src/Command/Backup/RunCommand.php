@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[AsCommand(
     name: 'backup:run',
-    description: 'Run a backup: dispatches pre/post-backup events, runs "restic backup" and "restic forget".',
+    description: 'Create a new backup.',
 )]
 final class RunCommand extends Command
 {

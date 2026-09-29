@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'backup:init',
-    description: 'Initialize the restic repository, if it has not been already.',
+    description: 'Initialize the Restic repository, if it has not been already.',
 )]
 final class InitCommand extends Command
 {

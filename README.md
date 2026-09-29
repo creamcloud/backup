@@ -109,7 +109,7 @@ Everything is run through the `creamcloud-backup` command, installed as `/usr/lo
 | `backup:stats` | Show configuration, Swift storage usage and the snapshot list. |
 | `backup:verify` | Check the integrity of the repository (`restic check`). |
 | `backup:restore` | Interactively restore a file, folder or MySQL database. |
-| `self-update` | Update Cream Cloud Backup itself (`git pull` + `composer install`). Requires the application to be a git checkout. |
+| `self-update` | Update Cream Cloud Backup itself (`git pull` + `composer install`) and restic (`restic self-update`). Requires the application to be a git checkout. |
 
 ## Backup <a id="backup"></a>
 
@@ -158,7 +158,7 @@ To update Cream Cloud Backup manually, run:
 
     creamcloud-backup self-update
 
-This runs `git pull --ff-only` followed by `composer install` in the application directory, and requires the application to have been installed via `git clone`. A cron job runs this automatically on the first day of each month.
+This runs `git pull --ff-only` followed by `composer install` in the application directory, and requires the application to have been installed via `git clone`. It then runs `restic self-update` to update restic to its latest release. A cron job runs this automatically on the first day of each month.
 
 ## Uninstall <a id="uninstall"></a>
 

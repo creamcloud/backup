@@ -12,7 +12,7 @@ use Symfony\Component\Process\Process;
 
 #[AsCommand(
     name: 'self-update',
-    description: 'Update Cream Cloud Backup to the latest version ("git pull" + "composer install").',
+    description: 'Update Cream Cloud Backup and Restic to the latest version.',
 )]
 final class SelfUpdateCommand extends Command
 {
@@ -41,6 +41,13 @@ final class SelfUpdateCommand extends Command
 
         if (!$this->runLoggedProcess(['composer', 'install', '--no-dev', '--optimize-autoloader'])) {
             return Command::FAILURE;
+        }
+
+        // Not fatal: distro-packaged restic builds (e.g. Debian/Ubuntu) have
+        // "self-update" disabled and must be updated via the package manager.
+        $this->logger->info('Updating restic.');
+        if (!$this->runLoggedProcess(['restic', 'self-update'])) {
+            $this->logger->info('Could not update restic, it may have been installed by the system package manager. Update it from there instead.');
         }
 
         $this->logger->info('Update finished.');
