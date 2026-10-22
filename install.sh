@@ -20,7 +20,7 @@
 
 set -o pipefail
 
-VERSION="3.0.0"
+VERSION="3.2.0"
 TITLE="Cream Cloud Backup Install ${VERSION}"
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -71,90 +71,39 @@ fi
 lecho "${TITLE} started on $(date)."
 
 # ------------------------------------------------------------------------------
-# Required system packages
 # ------------------------------------------------------------------------------
 
-distro_version() {
-    if [[ -f "/etc/debian_version" ]]; then
-        NAME="Debian"
-        VERSION="$(awk -F. '{print $1}' /etc/debian_version)"
-    fi
-    if [[ -f "/etc/lsb-release" ]]; then
-        NAME="$(awk -F= '/DISTRIB_ID/ {print $2}' /etc/lsb-release)"
-        VERSION="$(awk -F= '/DISTRIB_RELEASE/ {print $2}' /etc/lsb-release)"
-    fi
-    if [[ -f "/etc/redhat-release" ]]; then
-        NAME="$(awk '{ print $1 }' /etc/redhat-release)"
-        VERSION="$(grep -Eo "[0-9]\.[0-9]" /etc/redhat-release | cut -d . -f 1)"
-    fi
-    if [[ "$1" == "name" ]]; then
-        echo "${NAME}"
-    fi
-    if [[ "$1" == "version" ]]; then
-        echo "${VERSION}"
-    fi
-}
+MISSING=()
 
-install_packages_debian() {
-    lecho "Installing required packages."
-    apt-get -qq -y update
-    apt-get -qq -y install git unzip curl ca-certificates restic python3-swiftclient \
-        php-cli php-mbstring php-xml php-curl >/dev/null
-}
-
-install_packages_rhel() {
-    lecho "Installing required packages."
-    PKG_MGR="yum"
-    command -v dnf >/dev/null 2>&1 && PKG_MGR="dnf"
-    "${PKG_MGR}" -q -y install git unzip curl ca-certificates restic python3-swiftclient \
-        php-cli php-mbstring php-xml php-curl >/dev/null
-}
-
-DISTRO_NAME="$(distro_version name)"
-DISTRO_VERSION="$(distro_version version)"
-
-case "${DISTRO_NAME}" in
-    Debian|Ubuntu)
-        lecho "${DISTRO_NAME} ${DISTRO_VERSION}"
-        install_packages_debian
-        ;;
-    CentOS|Fedora|Rocky|AlmaLinux|RedHatEnterpriseServer)
-        lecho "${DISTRO_NAME} ${DISTRO_VERSION}"
-        install_packages_rhel
-        ;;
-    *)
-        lerror "Distro unknown or not supported."
-        lerror "Please install git, unzip, curl, restic, python3-swiftclient and PHP >= 8.2"
-        lerror "(with the cli, mbstring, xml and curl extensions) manually and re-run this script."
-        ;;
-esac
-
-for COMMAND in git curl restic; do
+for COMMAND in git restic swift composer; do
     if ! command -v "${COMMAND}" >/dev/null 2>&1; then
-        lerror "I require ${COMMAND} but it is not installed. Please install it and re-run this script."
-        exit 1
+        MISSING+=("${COMMAND}")
     fi
 done
 
-if ! command -v php >/dev/null 2>&1 || ! php -r 'exit(version_compare(PHP_VERSION, "8.2.0", ">=") ? 0 : 1);'; then
-    lerror "PHP >= 8.2 (cli) is required, but was not found."
-    lerror "See https://www.php.net/manual/en/install.php for installation instructions."
+if ! command -v php >/dev/null 2>&1; then
+    MISSING+=("php (>= 8.2, cli)")
+else
+    if ! php -r 'exit(version_compare(PHP_VERSION, "8.2.0", ">=") ? 0 : 1);'; then
+        MISSING+=("php >= 8.2 (found $(php -r 'echo PHP_VERSION;') at $(command -v php))")
+    fi
+    for EXTENSION in mbstring xml curl; do
+        if ! php -r "exit(extension_loaded('${EXTENSION}') ? 0 : 1);"; then
+            MISSING+=("php extension ${EXTENSION}")
+        fi
+    done
+fi
+
+if [[ ${#MISSING[@]} -gt 0 ]]; then
+    lerror "The following required software is missing:"
+    for ITEM in "${MISSING[@]}"; do
+        lerror "  - ${ITEM}"
+    done
+    lerror "Please install it and re-run this script."
     exit 1
 fi
 
-if ! command -v composer >/dev/null 2>&1; then
-    lecho "Installing Composer to /usr/local/bin/composer."
-    EXPECTED_SIGNATURE="$(curl -s https://composer.github.io/installer.sig)"
-    curl -s -o /tmp/composer-setup.php https://getcomposer.org/installer
-    ACTUAL_SIGNATURE="$(php -r "echo hash_file('sha384', '/tmp/composer-setup.php');")"
-    if [[ "${EXPECTED_SIGNATURE}" != "${ACTUAL_SIGNATURE}" ]]; then
-        lerror "Composer installer signature mismatch, aborting."
-        rm -f /tmp/composer-setup.php
-        exit 1
-    fi
-    php /tmp/composer-setup.php --quiet --install-dir=/usr/local/bin --filename=composer
-    rm -f /tmp/composer-setup.php
-fi
+lecho "Using $(php -r 'echo "PHP ", PHP_VERSION;') at $(command -v php)."
 
 # ------------------------------------------------------------------------------
 # Application dependencies

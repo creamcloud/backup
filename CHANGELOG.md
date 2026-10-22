@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.2.0
+- Install only checks for installed packages and no longer installs them by itself. 
+
 ## 3.1.0
 
 - The `self-update` command now also updates restic (`restic self-update`).

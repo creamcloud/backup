@@ -27,11 +27,12 @@ It is a Symfony Console based PHP application providing a `creamcloud-backup` co
 
 - PHP 8.2 or newer (cli, with the mbstring, xml and curl extensions)
 - [Composer](https://getcomposer.org/)
+- `git`
 - [restic](https://restic.net/)
 - `swift` (`python3-swiftclient`), used for status uploads and storage statistics
 - `mysql` / `mysqldump`, if you want MySQL databases to be backed up
 
-`install.sh` installs all of the above on Debian, Ubuntu, CentOS, Fedora, Rocky Linux and AlmaLinux.
+`install.sh` does not install system packages: it checks that the above are available and exits with a list of what is missing otherwise. This keeps it out of the way of PHP installed by e.g. DirectAdmin.
 
 ## Installation <a id="install"></a>
 
@@ -46,7 +47,7 @@ Run the installer:
 
     bash install.sh
 
-`install.sh` installs the required system packages, Composer and the PHP dependencies (`composer install`), then hands off to the application's own `install` command (`bin/creamcloud-backup install`), which:
+`install.sh` checks the requirements, installs the PHP dependencies (`composer install`), then hands off to the application's own `install` command (`bin/creamcloud-backup install`), which:
 
 - asks for this server's hostname (defaults to the machine's own hostname) and your OpenStack Object Store username, password, project ID, region and domain names (your password is not echoed back), and stores them - together with `SWIFT_CONTAINER`/`RESTIC_REPOSITORY` set to this server's hostname, so each server gets its own isolated Swift container - in `/etc/creamcloud-backup/backup.conf`;
 - asks for a restic repository password (leave empty to generate one), and stores it in `/etc/creamcloud-backup/restic-password.conf`; pass `--restic-password` to set it non-interactively;
