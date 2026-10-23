@@ -3,7 +3,7 @@
 # bound to service constructor arguments via the "_defaults.bind" map in
 # config/services.yaml.
 parameters:
-    app.version: '3.2.0'
+    app.version: '3.2.1'
     app.var_dir: '%kernel.project_dir%/var'
     app.sql_backup_dir: '/var/backups/sql'
     app.restore_dir: '/var/backups/restore'

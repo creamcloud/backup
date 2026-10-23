@@ -20,7 +20,7 @@
 
 set -o pipefail
 
-VERSION="3.2.0"
+VERSION="3.2.1"
 TITLE="Cream Cloud Backup Install ${VERSION}"
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

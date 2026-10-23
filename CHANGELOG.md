@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.2.1 
+- Added path to use local PHP to cronjob.
+
 ## 3.2.0
 - Install only checks for installed packages and no longer installs them by itself. 
 
