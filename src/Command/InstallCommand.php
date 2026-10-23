@@ -345,6 +345,7 @@ final class InstallCommand extends Command
         $contents = sprintf(
             <<<CRON
             # Cream Cloud Backup
+            PATH=/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             MAILTO="root"
 
             # Daily backup at a randomized time between 00:00 and 06:59.
