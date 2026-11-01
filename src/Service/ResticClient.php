@@ -17,10 +17,16 @@ final class ResticClient
 {
     private const NOISE = ['Warning', 'pkg_resources', 'oslo', 'attr', 'kwargs'];
 
+    /**
+     * Exit code restic (>= 0.17) uses when the repository does not exist.
+     */
+    private const EXIT_REPOSITORY_DOES_NOT_EXIST = 10;
+
     public function __construct(
         private readonly string $resticRepository,
         private readonly string $resticPasswordFile,
         private readonly string $tempDir,
+        private readonly string $cacheDir,
         private readonly string $osUsername,
         private readonly string $osPassword,
         private readonly string $osProjectName,
@@ -35,10 +41,7 @@ final class ResticClient
 
     public function isInitialized(): bool
     {
-        $process = $this->baseProcess(['cat', 'config']);
-        $process->run();
-
-        return $process->isSuccessful();
+        return $this->openRepository()->isSuccessful();
     }
 
     public function init(): ResticResult
@@ -51,8 +54,19 @@ final class ResticClient
      */
     public function ensureInitialized(): bool
     {
-        if ($this->isInitialized()) {
+        $process = $this->openRepository();
+        if ($process->isSuccessful()) {
             return true;
+        }
+
+        if (self::EXIT_REPOSITORY_DOES_NOT_EXIST !== $process->getExitCode()) {
+            $this->logger->error(sprintf(
+                'Could not open the restic repository (exit code %d): %s',
+                $process->getExitCode(),
+                trim(strtok($process->getErrorOutput(), "\n") ?: $process->getOutput()),
+            ));
+
+            return false;
         }
 
         $this->logger->info('Repository not yet initialized, running "restic init".');
@@ -212,6 +226,14 @@ final class ResticClient
         return true;
     }
 
+    private function openRepository(): Process
+    {
+        $process = $this->baseProcess(['cat', 'config']);
+        $process->run();
+
+        return $process;
+    }
+
     private function baseProcess(array $arguments): Process
     {
         $base = ['restic', ...$arguments];
@@ -221,6 +243,9 @@ final class ResticClient
             $base[] = '--password-file';
             $base[] = $this->resticPasswordFile;
         }
+
+        $base[] = '--cache-dir';
+        $base[] = $this->cacheDir;
 
         $process = new Process($base);
         $process->setTimeout(null);

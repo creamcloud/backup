@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.3.0
+- Moved the tool's working data out of Debian's `/var/backups` into a single configurable `DATA_DIR` (default `/var/creamcloud/backup`): staged MySQL dumps in `sql/`, restore output in `restore/` and the restic cache in `cache/`.
+- restic is now run with an explicit `--cache-dir`, so the cache no longer depends on `/root/.cache/restic`.
+- The restore output and the restic cache are excluded from the backup.
+- The repository is only initialized when restic reports it does not exist (exit code 10). Any other error when opening the repository is now logged as is, instead of triggering a failing `restic init`.
+
 ## 3.2.1 
 - Added path to use local PHP to cronjob.
 

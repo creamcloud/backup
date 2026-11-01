@@ -37,7 +37,7 @@ final class RunCommand extends Command
         $this->logger->setOutput($output);
 
         if (!$this->restic->ensureInitialized()) {
-            $this->logger->error('Could not initialize the restic repository.');
+            $this->logger->error('The restic repository is not available, not running the backup.');
 
             return Command::FAILURE;
         }

@@ -33,6 +33,7 @@ services:
             $varDir: '%app.var_dir%'
             $sqlBackupDir: '%app.sql_backup_dir%'
             $restoreDir: '%app.restore_dir%'
+            $cacheDir: '%app.cache_dir%'
             $binLink: '%app.bin_link%'
             $cronFile: '%app.cron_file%'
 

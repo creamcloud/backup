@@ -14,7 +14,8 @@ use Symfony\Component\Process\Process;
  * Dumps every (non-system) MySQL database to gzip files before the
  * backup runs, replacing pre-backup.d/30-mysql_backup.sh. The dumps are
  * picked up by "restic backup" because they live under $sqlBackupDir
- * (/var/backups/sql by default), which is not excluded.
+ * (DATA_DIR/sql, /var/creamcloud/backup/sql by default), which is not
+ * excluded.
  */
 final class MysqlDumpSubscriber implements EventSubscriberInterface
 {

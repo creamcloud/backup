@@ -124,7 +124,7 @@ Before the backup runs, the following happens:
 
 - a `started` status object (and a `version-x.y.z` marker) is uploaded to the Swift container;
 - leftover restic locks are checked and cleared if stale (a still-locked repository aborts the run);
-- every non-system MySQL database is dumped with `mysqldump` to gzip files under `/var/backups/sql/`, so they are picked up by the backup.
+- every non-system MySQL database is dumped with `mysqldump` to gzip files under `DATA_DIR/sql/` (`/var/creamcloud/backup/sql/` by default), so they are picked up by the backup.
 
 After a successful `restic backup` and `restic forget`, a `completed` status object is uploaded. If the backup or the retention cleanup fails, a `failed` status object is uploaded and, if `MAILER_DSN` and `NOTIFICATION_EMAILS` are configured, a failure notification email is sent.
 
@@ -139,7 +139,7 @@ This starts an interactive wizard:
 1. **Hostname** - pre-filled with the configured `HOSTNAME`. To restore data from another server, enter that server's hostname instead.
 2. **Type** - choose "File or folder" or "MySQL database".
 3. **Path / database name**:
-   - For a file or folder, enter the full path (e.g. `/home/user/test/`), then choose whether to restore it to its original location (overwriting any existing files) or to a timestamped directory under `/var/backups/restore/`.
+   - For a file or folder, enter the full path (e.g. `/home/user/test/`), then choose whether to restore it to its original location (overwriting any existing files) or to a timestamped directory under `DATA_DIR/restore/` (`/var/creamcloud/backup/restore/` by default).
    - For a database, enter its name. It is restored into a new database named `<database>_backup`, leaving the original database untouched. To restore a database, MySQL superuser credentials must be available in `/root/.my.cnf` (this is created automatically during `run` if a supported control panel is detected).
 4. **Snapshot ID** - the restic snapshot to restore from. Use `creamcloud-backup backup:list` to see available snapshots.
 5. **Confirmation** - an overview of what will happen before anything is changed.

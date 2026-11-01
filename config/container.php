@@ -22,6 +22,16 @@ $containerBuilder->setParameter('app.keep_weekly', (int) ($_ENV['KEEP_WEEKLY'] ?
 $containerBuilder->setParameter('app.tempdir', $_ENV['TEMPDIR'] ?? sys_get_temp_dir());
 $containerBuilder->setParameter('app.backup_path', $_ENV['BACKUP_PATH'] ?? '/');
 
+// Working directories of the tool itself (staged MySQL dumps, restore output
+// and the restic cache), all kept under one data directory instead of the
+// distribution's /var/backups.
+$dataDir = rtrim($_ENV['DATA_DIR'] ?? '', '/');
+$dataDir = '' !== $dataDir ? $dataDir : '/var/creamcloud/backup';
+$containerBuilder->setParameter('app.data_dir', $dataDir);
+$containerBuilder->setParameter('app.sql_backup_dir', $dataDir.'/sql');
+$containerBuilder->setParameter('app.restore_dir', $dataDir.'/restore');
+$containerBuilder->setParameter('app.cache_dir', $dataDir.'/cache');
+
 $containerBuilder->setParameter('app.restic_repository', $_ENV['RESTIC_REPOSITORY'] ?? '');
 $containerBuilder->setParameter('app.restic_password_file', $_ENV['RESTIC_PASSWORD_FILE'] ?? '');
 $containerBuilder->setParameter('app.local_config_file', $_ENV['LOCAL_CONFIG_FILE'] ?? '');
