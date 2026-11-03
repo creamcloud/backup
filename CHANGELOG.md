@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.3.1
+- Fixed initializing the repository on a new server with restic < 0.17 (e.g. 0.14 of Debian 12): it reports a missing repository with exit code 1 and "unable to open config file: ... Object Not Found" instead of exit code 10.
+- Improvement: Changed the GZIP compression level for faster compression.
+
 ## 3.3.0
 - Moved the tool's working data out of Debian's `/var/backups` into a single configurable `DATA_DIR` (default `/var/creamcloud/backup`): staged MySQL dumps in `sql/`, restore output in `restore/` and the restic cache in `cache/`.
 - restic is now run with an explicit `--cache-dir`, so the cache no longer depends on `/root/.cache/restic`.

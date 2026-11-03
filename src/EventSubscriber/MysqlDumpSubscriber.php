@@ -106,7 +106,7 @@ final class MysqlDumpSubscriber implements EventSubscriberInterface
         ]);
         $dump->setTimeout(null);
 
-        $handle = gzopen($destination, 'wb9');
+        $handle = gzopen($destination, 'wb1');
         $dump->run(function (string $type, string $buffer) use ($handle): void {
             if (Process::OUT === $type) {
                 gzwrite($handle, $buffer);
@@ -116,9 +116,6 @@ final class MysqlDumpSubscriber implements EventSubscriberInterface
 
         if (!$dump->isSuccessful()) {
             $this->logger->error(sprintf('Database dump for %s failed: %s', $database, trim($dump->getErrorOutput())));
-            $this->filesystem->remove($destination);
-
-            return;
         }
 
         $this->logger->info(sprintf('Finished dumping database %s.', $database));

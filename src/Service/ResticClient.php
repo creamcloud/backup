@@ -22,6 +22,12 @@ final class ResticClient
      */
     private const EXIT_REPOSITORY_DOES_NOT_EXIST = 10;
 
+    /**
+     * Error restic (< 0.17, e.g. 0.14 of Debian 12) prints with exit code 1
+     * when the repository does not exist.
+     */
+    private const LEGACY_REPOSITORY_DOES_NOT_EXIST = '/unable to open config file: .*(not found|does not exist|no such file)/i';
+
     public function __construct(
         private readonly string $resticRepository,
         private readonly string $resticPasswordFile,
@@ -59,7 +65,7 @@ final class ResticClient
             return true;
         }
 
-        if (self::EXIT_REPOSITORY_DOES_NOT_EXIST !== $process->getExitCode()) {
+        if (!$this->repositoryDoesNotExist($process)) {
             $this->logger->error(sprintf(
                 'Could not open the restic repository (exit code %d): %s',
                 $process->getExitCode(),
@@ -224,6 +230,20 @@ final class ResticClient
         }
 
         return true;
+    }
+
+    /**
+     * Whether opening the repository failed because it does not exist, as
+     * opposed to e.g. a wrong password or a connection error.
+     */
+    private function repositoryDoesNotExist(Process $process): bool
+    {
+        if (self::EXIT_REPOSITORY_DOES_NOT_EXIST === $process->getExitCode()) {
+            return true;
+        }
+
+        return 1 === $process->getExitCode()
+            && 1 === preg_match(self::LEGACY_REPOSITORY_DOES_NOT_EXIST, $process->getErrorOutput());
     }
 
     private function openRepository(): Process
