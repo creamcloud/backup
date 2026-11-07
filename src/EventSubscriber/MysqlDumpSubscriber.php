@@ -100,19 +100,17 @@ final class MysqlDumpSubscriber implements EventSubscriberInterface
         $destination = sprintf('%s/%s.sql.gz', $this->sqlBackupDir, $database);
         $this->logger->info(sprintf('Dumping database %s to %s', $database, $destination));
 
+        // Stream mysqldump straight into gzip so the dump never passes through PHP.
+        // Symfony Process buffers all stdout it receives in php://temp, which spills
+        // to sys_get_temp_dir() (/tmp on the root disk): a full uncompressed copy of
+        // the database. pipefail makes a failing mysqldump fail the whole pipeline.
         $dump = new Process([
-            'mysqldump', '--opt', '--single-transaction', '--quick', '--hex-blob',
-            '--force', '--skip-lock-tables', '--max_allowed_packet=128M', $database,
+            'bash', '-o', 'pipefail', '-c',
+            'mysqldump --opt --single-transaction --quick --hex-blob --force --skip-lock-tables --max_allowed_packet=128M -- "$1" | gzip -1 > "$2"',
+            'bash', $database, $destination,
         ]);
         $dump->setTimeout(null);
-
-        $handle = gzopen($destination, 'wb1');
-        $dump->run(function (string $type, string $buffer) use ($handle): void {
-            if (Process::OUT === $type) {
-                gzwrite($handle, $buffer);
-            }
-        });
-        gzclose($handle);
+        $dump->run();
 
         if (!$dump->isSuccessful()) {
             $this->logger->error(sprintf('Database dump for %s failed: %s', $database, trim($dump->getErrorOutput())));

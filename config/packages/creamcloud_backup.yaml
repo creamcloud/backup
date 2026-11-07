@@ -3,7 +3,7 @@
 # bound to service constructor arguments via the "_defaults.bind" map in
 # config/services.yaml.
 parameters:
-    app.version: '3.3.1'
+    app.version: '3.3.2'
     app.var_dir: '%kernel.project_dir%/var'
     app.bin_link: '/usr/local/bin/creamcloud-backup'
     app.cron_file: '/etc/cron.d/creamcloud-backup'
