@@ -100,10 +100,6 @@ final class MysqlDumpSubscriber implements EventSubscriberInterface
         $destination = sprintf('%s/%s.sql.gz', $this->sqlBackupDir, $database);
         $this->logger->info(sprintf('Dumping database %s to %s', $database, $destination));
 
-        // Stream mysqldump straight into gzip so the dump never passes through PHP.
-        // Symfony Process buffers all stdout it receives in php://temp, which spills
-        // to sys_get_temp_dir() (/tmp on the root disk): a full uncompressed copy of
-        // the database. pipefail makes a failing mysqldump fail the whole pipeline.
         $dump = new Process([
             'bash', '-o', 'pipefail', '-c',
             'mysqldump --opt --single-transaction --quick --hex-blob --force --skip-lock-tables --max_allowed_packet=128M -- "$1" | gzip -1 > "$2"',

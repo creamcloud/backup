@@ -1,10 +1,11 @@
 # Changelog
 
 ## 3.3.2
-- Fixed the MySQL dump filling the root disk: mysqldump output was passed through PHP, where Symfony Process buffered the complete uncompressed dump in `/tmp`. mysqldump is now piped straight into `gzip -1` (with `pipefail`), so no data passes through PHP.
+- Fixed: The MySQL dump filling the root disk: mysqldump output was passed through PHP, where Symfony Process buffered the complete uncompressed dump in `/tmp`. mysqldump is now piped straight into `gzip -1` (with `pipefail`), so no data passes through PHP.
+- Improvement: Restic is being updated to the latest version when installing the application. 
 
 ## 3.3.1
-- Fixed initializing the repository on a new server with restic < 0.17 (e.g. 0.14 of Debian 12): it reports a missing repository with exit code 1 and "unable to open config file: ... Object Not Found" instead of exit code 10.
+- Fixed: Initializing the repository on a new server with restic < 0.17 (e.g. 0.14 of Debian 12): it reports a missing repository with exit code 1 and "unable to open config file: ... Object Not Found" instead of exit code 10.
 - Improvement: Changed the GZIP compression level for faster compression.
 
 ## 3.3.0
