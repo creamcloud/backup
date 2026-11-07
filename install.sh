@@ -106,6 +106,19 @@ fi
 lecho "Using $(php -r 'echo "PHP ", PHP_VERSION;') at $(command -v php)."
 
 # ------------------------------------------------------------------------------
+# restic
+# ------------------------------------------------------------------------------
+# Update restic to the latest release, as distro packages are often old (e.g.
+# 0.14 on Debian 12). Same as "creamcloud-backup self-update" does on every
+# update. Not fatal: the installer also works with an older restic.
+lecho "Updating restic ($(restic version | cut -d ' ' -f 2))."
+if restic self-update; then
+    lecho "Using restic $(restic version | cut -d ' ' -f 2)."
+else
+    lecho "Could not update restic, continuing with restic $(restic version | cut -d ' ' -f 2)."
+fi
+
+# ------------------------------------------------------------------------------
 # Application dependencies
 # ------------------------------------------------------------------------------
 
